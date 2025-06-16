@@ -1,5 +1,6 @@
 import React from "react";
 import { FaHeart, FaStar } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const wishlist = [
   {
@@ -32,7 +33,8 @@ const MyWishlist = () => {
           </p>
         ) : (
           wishlist.map((hotel, i) => (
-            <div
+           <Link to="/listing">
+             <div
               key={i}
               className="bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition relative"
             >
@@ -56,6 +58,7 @@ const MyWishlist = () => {
                 </button>
               </div>
             </div>
+           </Link>
           ))
         )}
       </div>

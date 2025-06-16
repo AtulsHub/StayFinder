@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { reviews } from "../pages/Home";
 import { hotels } from "../pages/Home";
+import { Link } from "react-router-dom";
 import SearchByPopularPlaces from "./SearchByPopularPlaces";
 
 const HotelProductPage = () => {
@@ -58,7 +59,9 @@ const HotelProductPage = () => {
       {/* Navbar */}
 
       <nav className="flex justify-between items-center md:px-6 px-2 py-3 bg-white shadow-md sticky top-0 z-50">
-        <h1 className="text-2xl font-bold text-red-500">StayFinder</h1>
+        <Link to="/">
+          <h1 className="text-2xl font-bold text-red-500">StayFinder</h1>
+        </Link>
         <div className="flex flex-col-reverse md:flex-row justify-around items-center gap-3 ">
           <div className="flex items-center font-semibold rounded-lg mx-6">
             <h3 className="w-50  ">
@@ -72,22 +75,21 @@ const HotelProductPage = () => {
             </button>
           </div>
           <div className="flex items-center gap-6">
-            <a
-              href="#"
-              className="hover:text-red-500 transition hidden md:block"
-            >
+            <Link to="/" className="hover:text-red-500 transition">
               Home
-            </a>
-            <a href="#" className="hover:text-red-500 transition">
+            </Link>
+            <Link to="/store" className="hover:text-red-500 transition">
               Explore
-            </a>
-            <a href="#" className="hover:text-red-500 transition">
+            </Link>
+            <Link to="/login" className="hover:text-red-500 transition">
               Login
-            </a>
-            <FaHeart
-              className="text-xl text-red-500 cursor-pointer hover:scale-110 transition"
-              title="Wishlist"
-            />
+            </Link>
+            <Link to="/wishlist">
+              <FaHeart
+                className="text-xl text-red-500 cursor-pointer hover:scale-110 transition"
+                title="Wishlist"
+              />
+            </Link>
             <FaUserCircle className="text-2xl" />
           </div>
         </div>
@@ -293,48 +295,8 @@ const HotelProductPage = () => {
             ))}
           </div>
         </section>
-
-        {/* Footer */}
-        <footer className="mt-10 border-t pt-10 text-sm text-gray-600">
-          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div>
-              <h5 className="font-semibold mb-2">Support</h5>
-              <ul className="space-y-1">
-                <li>Help Centre</li>
-                <li>Safety information</li>
-                <li>Cancellation options</li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-2">Community</h5>
-              <ul className="space-y-1">
-                <li>Diversity & Belonging</li>
-                <li>Accessibility</li>
-                <li>Invite friends</li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-2">Hosting</h5>
-              <ul className="space-y-1">
-                <li>Try Hosting</li>
-                <li>AirCover for Hosts</li>
-                <li>Explore hosting resources</li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-2">About</h5>
-              <ul className="space-y-1">
-                <li>Newsroom</li>
-                <li>Learn about our features</li>
-                <li>Careers</li>
-              </ul>
-            </div>
-          </div>
-        </footer>
       </div>
-      <div className="mt-10 text-center text-sm text-gray-600 py-4 bg-gray-200">
-        © 2025 StayFinder | Designed for Project Showcase
-      </div>
+      
     </>
   );
 };

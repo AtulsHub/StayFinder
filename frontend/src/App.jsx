@@ -4,25 +4,26 @@ import Home from "./pages/Home";
 import ListingDetail from "./pages/ListingDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Loader from "./pages/Loader";
 import Explore from "./pages/Explore";
 import Dashboard from "./pages/Dashboard";
-import Navbar from "./components/Navbar";
-import "./tailwind.css";
 import Wishlist from "./pages/Wishlist";
+import Layout from "./pages/Layout";
+import "./tailwind.css";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/loader" element={<Loader />} />
-        <Route path="/listing" element={<ListingDetail />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/wishlist" element={<Wishlist />} />
+        {/* Nested routes under Layout */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/listing" element={<ListingDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/store" element={<Explore />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+        </Route>
       </Routes>
     </Router>
   );

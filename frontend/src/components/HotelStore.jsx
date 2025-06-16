@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaStar, FaSearch } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const hotelsList = [
   {
@@ -152,6 +153,7 @@ const HotelStore = () => {
             </p>
           ) : (
             filteredHotels.map((hotel, i) => (
+              <Link to="/listing" >
               <div
                 key={i}
                 className="bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition"
@@ -175,6 +177,7 @@ const HotelStore = () => {
                   </button>
                 </div>
               </div>
+              </Link>
             ))
           )}
         </div>

@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { FaHeart } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const SearchByPopularPlaces = ({ places, hotels }) => {
   const scrollRefs = useRef([]);
@@ -40,13 +41,13 @@ const SearchByPopularPlaces = ({ places, hotels }) => {
               <h4 className="text-2xl font-semibold">{place}</h4>
               <div>
                 <button
-                  onClick={() => (scrollRefs.current[idx].scrollLeft -= 300)}
+                  onClick={() => (scrollRefs.current[idx].scrollLeft -= 500)}
                   className="h-8 w-8 pb-1 mx-1 inline-flex justify-center items-center bg-white hover:bg-gray-100 shadow-lg rounded-full text-3xl"
                 >
                   ‹
                 </button>
                 <button
-                  onClick={() => (scrollRefs.current[idx].scrollLeft += 300)}
+                  onClick={() => (scrollRefs.current[idx].scrollLeft += 500)}
                   className="h-8 w-8 pb-1 inline-flex justify-center items-center bg-white hover:bg-gray-100 shadow-lg rounded-full text-3xl"
                 >
                   ›
@@ -59,11 +60,12 @@ const SearchByPopularPlaces = ({ places, hotels }) => {
               onMouseUp={() => handleMouseLeaveOrUp(idx)}
               onMouseLeave={() => handleMouseLeaveOrUp(idx)}
               onMouseMove={(e) => handleMouseMove(idx, e)}
-              className="flex overflow-x-auto gap-4 py-2 scrollbar-hidden scroll-smooth px-10 cursor-grab select-none"
+              className="flex overflow-x-auto gap-4 py-2 scrollbar-hidden scroll-smooth px-8 cursor-grab select-none"
               style={{ scrollBehavior: "smooth" }}
             >
               {hotels.map((hotel, i) => (
-                <div
+                <Link to="/listing">
+                  <div
                   key={i}
                   className="min-w-[250px] bg-white rounded-xl shadow hover:shadow-md cursor-pointer relative"
                 >
@@ -86,6 +88,7 @@ const SearchByPopularPlaces = ({ places, hotels }) => {
                     </button>
                   </div>
                 </div>
+                </Link>
               ))}
             </div>
           </div>
