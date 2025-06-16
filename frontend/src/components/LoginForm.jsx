@@ -1,102 +1,92 @@
-import React from "react";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { login } from "../store/userSlice.js";
+import React, { useState } from "react";
+import { FaGoogle } from "react-icons/fa";
 
-import userService from "../backendConnect/user.js"
-import { useNavigate } from "react-router-dom";
+const LoginPage = () => {
+  const [popup, setPopup] = useState({ show: false, message: "" });
 
-export default function LoginForm({ isOpen, onClose, isLogin = true }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-const verifyUser = async (email, password) => {
-  try {
-    const response = await userService.loginUser(email, password);
-    console.log("Login response:", response);
-      dispatch(login({ userData: response.user }));
-      navigate("/")
-    
-  } catch (error) {
-    console.log("Login error:", error.message);
-  }
-};
+  const showPopup = (message) => {
+    setPopup({ show: true, message });
+    setTimeout(() => setPopup({ show: false, message: "" }), 3000); // auto-close after 3s
+  };
 
+  const handleGoogleLogin = () => {
+    showPopup("Google login triggered (implement integration)");
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const email = formData.get("email");
+    // Do actual auth here...
+    showPopup(`Successfully loged in `);
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
-        <h2 className="text-2xl font-semibold mb-4 text-center">
-          {isLogin ? "Login to StayFinder" : "Create an Account"}
+    <div className="min-h-screen bg-gradient-to-br from-red-100 to-pink-200 flex items-center justify-center px-4 py-4 md:p-8 relative">
+      {popup.show && (
+        <div className="absolute top-5 px-6 py-3 bg-green-300 border border-gray-200 shadow-lg rounded-xl text-sm text-gray-800 z-50 animate-fade-in-down">
+          {popup.message}
+        </div>
+      )}
+
+      <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full animate-fade-in">
+        <h2 className="text-4xl font-bold text-center text-red-600 mb-6 tracking-tight">
+          Welcome Back
         </h2>
-
-        {!isLogin && (
-          <input
-            type="text"
-            placeholder="Full Name"
-            className="w-full border border-gray-300 rounded-md p-2"
-            required
-          />
-        )}
-
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full border border-gray-300 rounded-md p-2"
-          required
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            console.log();
-            
-          }}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border border-gray-300 rounded-md p-2"
-          required
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
-        />
-
-        <button
-          className="w-full bg-indigo-600 text-white rounded-md py-2 hover:bg-indigo-700 transition"
-          onClick={() => {verifyUser(email, password)}}
-        >
-          {isLogin ? "Login" : "Register"}
-        </button>
-
-        <p className="mt-4 text-sm text-center">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-          <button
-            className="text-indigo-600 font-semibold"
-
-          >
-            {isLogin ? "Register" : "Login"}
-           
-          </button>
+        <p className="text-center text-gray-500 mb-8 text-sm">
+          Log in to continue booking your perfect stay
         </p>
+        <form onSubmit={handleFormSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700">Email</label>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="you@example.com"
+              className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700">Password</label>
+            <input
+              type="password"
+              name="password"
+              required
+              placeholder="Enter your password"
+              className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-red-500 text-white py-3 rounded-xl hover:bg-red-600 transition shadow-lg"
+          >
+            Log In
+          </button>
+        </form>
+
+        <div className="my-6 text-center text-gray-400 relative">
+          <span className="bg-white px-3 relative z-10">OR</span>
+          <div className="absolute left-0 right-0 top-1/2 h-px bg-gray-200 z-0" />
+        </div>
 
         <button
-          onClick={() => onClose("close")}
-          className="absolute top-4 right-6 text-gray-600 hover:text-black"
+          onClick={handleGoogleLogin}
+          className="w-full border border-gray-300 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-50 transition shadow-sm"
         >
-          ✕
+          <FaGoogle className="text-red-500 text-lg" />
+          <span className="text-sm font-medium text-gray-700">Continue with Google</span>
         </button>
 
-        <button className="w-full h-10 bg-blue-300 overlay-hidden"
-        onClick={async () => (
-
-          window.location.href = `http://localhost:8000/api/v1/users/google`
-        )}>
-          Google Login
-          </button>
+        <p className="mt-8 text-center text-sm text-gray-600">
+          Don’t have an account?{" "}
+          <a href="/register" className="text-red-500 font-semibold hover:underline">
+            Sign up here
+          </a>
+        </p>
       </div>
     </div>
   );
-}
+};
+
+export default LoginPage;

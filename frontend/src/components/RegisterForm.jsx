@@ -1,59 +1,125 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 
-const RegisterForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+const SignupPage = () => {
+  const [popup, setPopup] = useState({ show: false, message: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  const showPopup = (message) => {
+    setPopup({ show: true, message });
+    setTimeout(() => setPopup({ show: false, message: "" }), 3000);
+  };
+
+  const handleGoogleSignup = () => {
+    showPopup("Google signup triggered (implement integration)");
+  };
+
+  const handleFormSubmit = (e) => {
     e.preventDefault();
-    setError('');
-    if (!email || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
-      return;
-    }
+    const formData = new FormData(e.target);
+    const name = formData.get("name");
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const confirmPassword = formData.get("confirmPassword");
+
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      showPopup("Passwords do not match!");
       return;
     }
-    // TODO: Add API call for registration
-    alert('Registration successful (mock)');
+    showPopup(`Account created for ${name}`);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <div className="text-red-500">{error}</div>}
-      <div>
-        <label className="block mb-1">Email</label>
-        <input
-          type="email"
-          className="w-full border rounded px-3 py-2"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+    <div className="min-h-screen bg-gradient-to-br from-red-100 to-pink-200 flex items-center justify-center px-4 py-4 md:p-8 relative">
+      {popup.show && (
+        <div className="absolute top-5 px-6 py-3 bg-white border border-gray-200 shadow-lg rounded-xl text-sm text-gray-800 z-50 animate-fade-in-down">
+          {popup.message}
+        </div>
+      )}
+
+      <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full animate-fade-in">
+        <h2 className="text-3xl font-bold text-center text-red-600 mb-6 tracking-tight">
+          New User <br />Create Account
+        </h2>
+        <form onSubmit={handleFormSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <input
+              type="text"
+              name="name"
+              required
+              placeholder="John Doe"
+              className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="you@example.com"
+              className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300"
+            />
+          </div>
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              required
+              placeholder="Create password"
+              className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300"
+            />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-10 cursor-pointer text-gray-500"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              required
+              placeholder="Re-enter password"
+              className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300"
+            />
+            
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-red-500 text-white py-3 rounded-xl hover:bg-red-600 transition shadow-lg"
+          >
+            Sign Up
+          </button>
+        </form>
+
+        <div className="my-6 text-center text-gray-400 relative">
+          <span className="bg-white px-3 relative z-10">OR</span>
+          <div className="absolute left-0 right-0 top-1/2 h-px bg-gray-200 z-0" />
+        </div>
+
+        <button
+          onClick={handleGoogleSignup}
+          className="w-full border border-gray-300 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-50 transition shadow-sm"
+        >
+          <FaGoogle className="text-red-500 text-lg" />
+          <span className="text-sm font-medium text-gray-700">Sign up with Google</span>
+        </button>
+
+        <p className="mt-8 text-center text-sm text-gray-600">
+          Already have an account?{' '}
+          <a href="/login" className="text-red-500 font-semibold hover:underline">
+            Log in here
+          </a>
+        </p>
       </div>
-      <div>
-        <label className="block mb-1">Password</label>
-        <input
-          type="password"
-          className="w-full border rounded px-3 py-2"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <div>
-        <label className="block mb-1">Confirm Password</label>
-        <input
-          type="password"
-          className="w-full border rounded px-3 py-2"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-      </div>
-      <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Register</button>
-    </form>
+    </div>
   );
 };
 
-export default RegisterForm;
+export default SignupPage;
