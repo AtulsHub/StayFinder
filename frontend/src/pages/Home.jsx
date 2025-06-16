@@ -1,0 +1,325 @@
+import React, { useEffect } from "react";
+import PropertyList from "../components/PropertyList";
+import { useSelector } from "react-redux";
+import { useState } from "react";
+import SearchByPopularPlaces from "../components/SearchByPopularPlaces";
+
+import {
+  FaSearch,
+  FaUserCircle,
+  FaWifi,
+  FaParking,
+  FaSwimmer,
+  FaUtensils,
+  FaSpa,
+  FaStar,
+  FaHeart,
+  FaFacebookF,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedinIn,
+  FaEnvelope,
+  FaPhone,
+} from "react-icons/fa";
+
+import { motion } from "framer-motion";
+import Navbar from "../components/Navbar";
+
+export const hotels = Array.from({ length: 10 }, (_, i) => ({
+  name: `Hotel ${i + 1}`,
+  image: `https://source.unsplash.com/featured/?hotel,room,${i}`,
+  location: `City ${i + 1}, India`,
+  price: `₹${3000 + i * 500}/night`,
+}));
+
+const places = ["Goa", "Manali", "Mumbai", "Jaipur", "Kerala"];
+
+const facilities = [
+  {
+    icon: <FaWifi />,
+    label: "Free WiFi",
+    desc: "Stay connected with high-speed internet.",
+  },
+  {
+    icon: <FaParking />,
+    label: "Free Parking",
+    desc: "Secure parking space for your vehicle.",
+  },
+  {
+    icon: <FaSwimmer />,
+    label: "Swimming Pool",
+    desc: "Relax and refresh in our clean pool.",
+  },
+  {
+    icon: <FaUtensils />,
+    label: "Restaurant",
+    desc: "Tasty meals from local and international cuisines.",
+  },
+  {
+    icon: <FaSpa />,
+    label: "Spa & Wellness",
+    desc: "Rejuvenate your body and mind.",
+  },
+];
+
+export const reviews = [
+  {
+    name: "Aarav Shah",
+    comment:
+      "Amazing stay! The view was spectacular and the service was top-notch.",
+    rating: 5,
+  },
+  {
+    name: "Riya Mehta",
+    comment: "Comfortable rooms and great amenities. Highly recommended!",
+    rating: 4,
+  },
+];
+
+export default function LandingPage() {
+  return (
+    <div className="font-sans bg-white text-gray-800">
+      {/* Navbar */}
+      <Navbar />
+      {/* Hero */}
+      <section
+        className="relative h-[85vh] bg-center bg-cover flex items-center justify-center"
+        style={{
+          backgroundImage:
+            "url(https://source.unsplash.com/featured/?hotel,resort)",
+        }}
+      >
+        <div className="bg-black bg-opacity-60 w-full h-full absolute" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative text-center text-white z-10 px-4"
+        >
+          <h2 className="text-4xl md:text-6xl font-bold">
+            Book Your Dream Stay
+          </h2>
+          <p className="text-lg mt-4 max-w-xl mx-auto">
+            Unique hotels and stays around the world. Find comfort, style and
+            convenience wherever you go.
+          </p>
+        </motion.div>
+      </section>
+      {/* Search Bar */}
+      <div className="flex flex-col md:flex-row justify-center items-center gap-4 p-6 bg-white shadow-lg mx-6 rounded-xl -mt-16 relative">
+        <input
+          type="text"
+          placeholder="Location"
+          className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
+        />
+        <input
+          type="date"
+          className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
+        />
+        <input
+          type="number"
+          placeholder="Guests"
+          className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
+        />
+        <button className="bg-red-500 text-white px-5 py-3 rounded-lg flex items-center gap-2 hover:bg-red-600 transition">
+          <FaSearch /> Search
+        </button>
+      </div>
+      {/* 1. Popular Listings */}
+      <section className="px-6 py-16 bg-gray-50">
+        <h3 className="text-3xl font-semibold mb-8 text-center">
+          Popular Listings
+        </h3>
+        <div className="flex justify-end mb-4 px-4 ">
+          <button
+            onClick={() =>
+              (document.getElementById("popular-list").scrollLeft += 400)
+            }
+            className="h-8 w-8 pb-1 mx-1 inline-flex justify-center items-center bg-white hover:bg-gray-100 shadow-lg rounded-full text-3xl"
+          >
+            ‹
+          </button>
+          <button
+            onClick={() =>
+              (document.getElementById("popular-list").scrollLeft -= 400)
+            }
+            className="h-8 w-8 pb-1 inline-flex justify-center items-center bg-white hover:bg-gray-100 shadow-lg rounded-full text-3xl"
+          >
+            ›
+          </button>
+        </div>
+        <div
+          id="popular-list"
+          className="flex overflow-x-auto gap-6 scrollbar-hidden scroll-smooth px-10 py-4"
+        >
+          {hotels.map((hotel, idx) => (
+            <motion.div
+              key={idx}
+              whileHover={{ scale: 1.03 }}
+              className="min-w-[250px] bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 relative"
+            >
+              <img
+                src={hotel.image}
+                alt={hotel.name}
+                className="h-55 w-full object-cover"
+              />
+              <FaHeart
+                className="absolute top-3 right-3 text-white text-xl drop-shadow cursor-pointer hover:scale-110 transition-transform"
+                title="Add to Wishlist"
+              />
+              <div className="p-5">
+                <h4 className="text-xl font-bold text-gray-800">
+                  {hotel.name}
+                </h4>
+                <p className="text-gray-500 text-sm mt-1">{hotel.location}</p>
+                <p className="text-red-500 font-semibold mt-1">{hotel.price}</p>
+                <button className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg">
+                  Book now
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+      {/* 2. Search by Popular Places */}
+      <SearchByPopularPlaces places={places} hotels={hotels} />
+      {/* 3. Facilities We Offer */}
+      <section className="py-16 px-6 bg-white text-center">
+        <h3 className="text-3xl font-semibold mb-10">Facilities We Offer</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10">
+          {facilities.map((item, index) => (
+            <div key={index} className="flex flex-col items-center text-center">
+              <div className="text-3xl text-red-500 mb-3">{item.icon}</div>
+              <h4 className="font-semibold">{item.label}</h4>
+              <p className="text-sm text-gray-500 mt-1">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+      {/* 4. Quotes */}
+      <section className="px-6 py-16 bg-gray-100 text-center">
+        <h3 className="text-3xl font-semibold mb-6">Traveler's Thought</h3>
+        <blockquote className="italic text-lg text-gray-700 max-w-2xl mx-auto">
+          "Travel is the only thing you buy that makes you richer."
+        </blockquote>
+      </section>
+      {/* 5. Reviews */}
+      <section className="px-6 py-16 bg-white">
+        <h3 className="text-3xl font-semibold text-center mb-10">
+          What Our Guests Say
+        </h3>
+        <div className="grid md:grid-cols-2 gap-8">
+          {reviews.map((review, idx) => (
+            <div key={idx} className="bg-gray-50 p-6 rounded-xl shadow">
+              <p className="text-gray-700 italic mb-4">"{review.comment}"</p>
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold">{review.name}</h4>
+                <div className="text-yellow-500 flex gap-1">
+                  {[...Array(review.rating)].map((_, i) => (
+                    <FaStar key={i} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      {/* 6. Footer Section */}
+      <section className="px-6 pt-16 py-4 bg-gray-100 text-center">
+        <h3 className="text-3xl font-bold mb-6 text-gray-800">
+          About StayFinder
+        </h3>
+        <p className="max-w-3xl mx-auto text-gray-600 text-lg">
+          StayFinder is your trusted platform for discovering exceptional stays
+          across India. We are committed to delivering seamless hotel booking
+          experiences with transparency, comfort, and ease.
+        </p>
+
+        <div className="mt-10 space-y-2 text-sm text-gray-600">
+          <p className="flex justify-center items-center gap-2">
+            <FaEnvelope /> support@stayfinder.com
+          </p>
+          <p className="flex justify-center items-center gap-2">
+            <FaPhone /> +91-99999-99999
+          </p>
+          <p>123 Travel Lane, Wanderlust City, India</p>
+        </div>
+
+        <div className="mt-8 flex justify-center gap-6 text-gray-600 text-xl">
+          <a
+            href="https://facebook.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-600"
+          >
+            <FaFacebookF />
+          </a>
+          <a
+            href="https://twitter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-sky-500"
+          >
+            <FaTwitter />
+          </a>
+          <a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-pink-500"
+          >
+            <FaInstagram />
+          </a>
+          <a
+            href="https://linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-800"
+          >
+            <FaLinkedinIn />
+          </a>
+        </div>
+      </section>
+      <footer className="border-t pt-10 py-10 text-sm text-gray-600 bg-gray-100">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div>
+            <h5 className="font-semibold mb-2">Support</h5>
+            <ul className="space-y-1">
+              <li>Help Centre</li>
+              <li>Safety information</li>
+              <li>Cancellation options</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-semibold mb-2">Community</h5>
+            <ul className="space-y-1">
+              <li>Diversity & Belonging</li>
+              <li>Accessibility</li>
+              <li>Invite friends</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-semibold mb-2">Hosting</h5>
+            <ul className="space-y-1">
+              <li>Try Hosting</li>
+              <li>AirCover for Hosts</li>
+              <li>Explore hosting resources</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-semibold mb-2">About</h5>
+            <ul className="space-y-1">
+              <li>Newsroom</li>
+              <li>Learn about our features</li>
+              <li>Careers</li>
+            </ul>
+          </div>
+        </div>
+      </footer>
+      {/* 7. Copyright */}
+      <footer className="bg-gray-200 py-4 text-center text-sm text-gray-600">
+        <p>© 2025 StayFinder | Designed for Project Showcase</p>
+      </footer>
+    </div>
+  );
+}
