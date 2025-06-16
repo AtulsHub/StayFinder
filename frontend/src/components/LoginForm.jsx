@@ -80,9 +80,9 @@ const LoginPage = () => {
 
         <p className="mt-8 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
-          <a href="/register" className="text-red-500 font-semibold hover:underline">
+          <Link to="/register" className="text-red-500 font-semibold hover:underline">
             Sign up here
-          </a>
+          </Link>
         </p>
       </div>
     </div>

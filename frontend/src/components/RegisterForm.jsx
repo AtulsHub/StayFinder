@@ -113,9 +113,9 @@ const SignupPage = () => {
 
         <p className="mt-8 text-center text-sm text-gray-600">
           Already have an account?{' '}
-          <a href="/login" className="text-red-500 font-semibold hover:underline">
+          <Link to="/login" className="text-red-500 font-semibold hover:underline">
             Log in here
-          </a>
+          </Link>
         </p>
       </div>
     </div>
