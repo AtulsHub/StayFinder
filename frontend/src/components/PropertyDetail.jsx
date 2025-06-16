@@ -248,7 +248,7 @@ const HotelProductPage = () => {
             <div>
               <button
                 onClick={() =>
-                  (document.getElementById("similar").scrollLeft += 500)
+                  (document.getElementById("similar").scrollLeft -= 500)
                 }
                 className="h-8 w-8 pb-1 mx-1 inline-flex justify-center items-center bg-white hover:bg-gray-100 shadow-lg rounded-full text-3xl"
               >
@@ -256,7 +256,7 @@ const HotelProductPage = () => {
               </button>
               <button
                 onClick={() =>
-                  (document.getElementById("similar").scrollLeft -= 500)
+                  (document.getElementById("similar").scrollLeft += 500)
                 }
                 className="h-8 w-8 pb-1 inline-flex justify-center items-center bg-white hover:bg-gray-100 shadow-lg rounded-full text-3xl"
               >
@@ -269,7 +269,8 @@ const HotelProductPage = () => {
             className="flex overflow-x-auto gap-4 scrollbar-hidden scroll-smooth px-10 py-4 cursor-grab select-none"
           >
             {hotels.map((items, i) => (
-              <div
+              <Link to="/listing">
+                <div
                 key={i}
                 className="min-w-[250px] bg-white rounded-xl shadow hover:shadow-md cursor-pointer relative"
               >
@@ -292,6 +293,7 @@ const HotelProductPage = () => {
                   </button>
                 </div>
               </div>
+              </Link>
             ))}
           </div>
         </section>
