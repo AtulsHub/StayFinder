@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import userService from "../backendConnect/user";
 
 const SignupPage = () => {
   const [popup, setPopup] = useState({ show: false, message: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
+  console.log(import.meta.env.VITE_GOOGLE_REDIRECT_URI);
 
   const showPopup = (message) => {
     setPopup({ show: true, message });
@@ -12,7 +17,19 @@ const SignupPage = () => {
   };
 
   const handleGoogleSignup = () => {
-    showPopup("Google signup triggered (implement integration)");
+    window.open(import.meta.env.VITE_GOOGLE_REDIRECT_URI);
+  };
+
+  const signUp = async (name, email, password) => {
+    try {
+      const response = await userService.registerUser(name, email, password);
+      console.log(response.message);
+      showPopup(response.message);
+      setTimeout(() => navigate("/"), 2000);
+    } catch (error) {
+      showPopup(error.message);
+      console.log("login error", error);
+    }
   };
 
   const handleFormSubmit = (e) => {
@@ -27,24 +44,28 @@ const SignupPage = () => {
       showPopup("Passwords do not match!");
       return;
     }
-    showPopup(`Account created for ${name}`);
+
+    signUp(name, email, password);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-100 to-pink-200 flex items-center justify-center px-4 py-4 md:p-8 relative">
       {popup.show && (
-        <div className="absolute top-5 px-6 py-3 bg-white border border-gray-200 shadow-lg rounded-xl text-sm text-gray-800 z-50 animate-fade-in-down">
+        <div className="fixed top-5 px-6 py-3 bg-white border border-gray-200 shadow-lg rounded-xl text-sm text-gray-800 z-50 animate-fade-in-down">
           {popup.message}
         </div>
       )}
 
       <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full animate-fade-in">
         <h2 className="text-3xl font-bold text-center text-red-600 mb-6 tracking-tight">
-          New User <br />Create Account
+          New User <br />
+          Create Account
         </h2>
         <form onSubmit={handleFormSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Full Name
+            </label>
             <input
               type="text"
               name="name"
@@ -54,7 +75,9 @@ const SignupPage = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
             <input
               type="email"
               name="email"
@@ -64,7 +87,9 @@ const SignupPage = () => {
             />
           </div>
           <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
             <input
               type={showPassword ? "text" : "password"}
               name="password"
@@ -80,7 +105,9 @@ const SignupPage = () => {
             </span>
           </div>
           <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirm Password
+            </label>
             <input
               type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
@@ -88,7 +115,6 @@ const SignupPage = () => {
               placeholder="Re-enter password"
               className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-300"
             />
-            
           </div>
           <button
             type="submit"
@@ -108,12 +134,17 @@ const SignupPage = () => {
           className="w-full border border-gray-300 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-50 transition shadow-sm"
         >
           <FaGoogle className="text-red-500 text-lg" />
-          <span className="text-sm font-medium text-gray-700">Sign up with Google</span>
+          <span className="text-sm font-medium text-gray-700">
+            Sign up with Google
+          </span>
         </button>
 
         <p className="mt-8 text-center text-sm text-gray-600">
-          Already have an account?{' '}
-          <Link to="/login" className="text-red-500 font-semibold hover:underline">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-red-500 font-semibold hover:underline"
+          >
             Log in here
           </Link>
         </p>

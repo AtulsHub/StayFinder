@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
+import {Link} from "react-router-dom"
+import userService from "../backendConnect/user";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [popup, setPopup] = useState({ show: false, message: "" });
+  const navigate = useNavigate()
 
   const showPopup = (message) => {
     setPopup({ show: true, message });
@@ -10,15 +14,28 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    showPopup("Google login triggered (implement integration)");
+    window.open(import.meta.env.VITE_GOOGLE_REDIRECT_URI);
   };
-
+  
+  const logIn = async (email, password) => {
+      try {
+        const response = await userService.loginUser(email, password);
+        console.log(response.message);
+        showPopup(response.message);
+        setTimeout(() => navigate("/"), 2000);
+      } catch (error) {
+        showPopup(error.message);
+        console.log("login error", error);
+      }
+    };
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const email = formData.get("email");
-    // Do actual auth here...
-    showPopup(`Successfully loged in `);
+    const password = formData.get("password");
+
+    // actual auth here...
+    logIn(email, password)
   };
 
   return (

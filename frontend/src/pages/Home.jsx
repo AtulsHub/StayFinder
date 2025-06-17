@@ -33,7 +33,6 @@ export const hotels = Array.from({ length: 10 }, (_, i) => ({
   price: `₹${3000 + i * 500}/night`,
 }));
 
-const places = ["Goa", "Manali", "Mumbai", "Jaipur", "Kerala"];
 
 const facilities = [
   {
@@ -129,7 +128,7 @@ export default function LandingPage() {
       {/* 1. Popular Listings */}
       <PopularListing />
       {/* 2. Search by Popular Places */}
-      <SearchByPopularPlaces places={places} hotels={hotels} />
+      <SearchByPopularPlaces />
       {/* 3. Facilities We Offer */}
       <section className="py-16 px-6 bg-white text-center">
         <h3 className="text-3xl font-semibold mb-10">Facilities We Offer</h3>
