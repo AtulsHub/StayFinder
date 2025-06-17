@@ -14,10 +14,10 @@ export class ListingService {
     }
   }
 
-  async searchListings(location, checkin, checkout) {
+  async searchListings(location, checkin, checkout, page, perPage) {
     try {
       const response = await axios.get(
-        `${this.url}/search?location=${location}&checkIn=${checkin}&checkout${checkout}`
+        `${this.url}/search?location=${location}&checkin=${checkin}&checkout=${checkout}&page=${page}&perPage=${perPage}`
       );
       return response.data;
     } catch (err) {

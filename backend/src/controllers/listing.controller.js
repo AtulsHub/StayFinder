@@ -31,6 +31,8 @@ const getById = async (req, res) => {
       item,
     });
 
+    console.log(item);
+    
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
@@ -40,7 +42,16 @@ const getById = async (req, res) => {
 
 const searchListings = async (req, res) => {
   try {
-    const { location, checkin, checkout } = req.query;
+    const {
+      location,
+      checkin,
+      checkout,
+      page = 1,
+      perPage = 10,
+    } = req.query;
+
+    // Log incoming query for debugging
+    console.log("Received query:", req.query);
 
     const query = {};
 
@@ -50,13 +61,13 @@ const searchListings = async (req, res) => {
       query.$or = [
         { "location.state": locationRegex },
         { "location.district": locationRegex },
-        { "location.city": locationRegex }
+        { "location.city": locationRegex },
       ];
     }
 
-    // Date filters (only if both checkin and checkout are valid)
-    const isValidCheckin = checkin && !isNaN(new Date(checkin));
-    const isValidCheckout = checkout && !isNaN(new Date(checkout));
+    // Safe date filter only when both dates are valid and not empty
+    const isValidCheckin = checkin && !isNaN(Date.parse(checkin));
+    const isValidCheckout = checkout && !isNaN(Date.parse(checkout));
 
     if (isValidCheckin && isValidCheckout) {
       const checkinDate = new Date(checkin);
@@ -65,26 +76,37 @@ const searchListings = async (req, res) => {
       query.availableDates = {
         $elemMatch: {
           start: { $lte: checkinDate },
-          end: { $gte: checkoutDate }
-        }
+          end: { $gte: checkoutDate },
+        },
       };
     }
 
-    const listings = await Listing.find(query);
-    console.log(listings);
-    
+    // Convert page and perPage to integers
+    const limit = parseInt(perPage);
+    const skip = (parseInt(page) - 1) * limit;
+
+    // Count total documents before pagination
+    const total = await Listing.countDocuments(query);
+
+    // Apply pagination
+    const listings = await Listing.find(query).skip(skip).limit(limit);
 
     res.status(200).json({
       message: "Successfully fetched listings",
+      page: parseInt(page),
+      perPage: limit,
+      total,
+      totalPages: Math.ceil(total / limit),
       count: listings.length,
-      listings
+      listings,
     });
-
   } catch (error) {
     console.error("Error in searchListings:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 
 export { 
