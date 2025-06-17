@@ -1,7 +1,4 @@
 import React, { useEffect } from "react";
-import PropertyList from "../components/PopularListing";
-import { useSelector } from "react-redux";
-import { useState } from "react";
 import SearchByPopularPlaces from "../components/SearchByPopularPlaces";
 
 import {
@@ -32,7 +29,6 @@ export const hotels = Array.from({ length: 10 }, (_, i) => ({
   location: `City ${i + 1}, India`,
   price: `₹${3000 + i * 500}/night`,
 }));
-
 
 const facilities = [
   {
@@ -85,18 +81,20 @@ export default function LandingPage() {
       <section
         className="relative h-[85vh] bg-center bg-cover flex items-center justify-center"
         style={{
-          backgroundImage:
-            "url(https://source.unsplash.com/featured/?hotel,resort)",
+          backgroundImage: `url("/coverImage1.jpg")`,
         }}
       >
-        <div className="bg-black bg-opacity-60 w-full h-full absolute" />
+        <div
+          className="bg-opacity-60 w-full h-full absolute"
+          
+        />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="relative text-center text-white z-10 px-4"
         >
-          <h2 className="text-4xl md:text-6xl font-bold">
+          <h2 className="text-4xl md:text-6xl font-bold  text-shadow-black">
             Book Your Dream Stay
           </h2>
           <p className="text-lg mt-4 max-w-xl mx-auto">
