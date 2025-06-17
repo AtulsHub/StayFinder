@@ -5,10 +5,10 @@ export class ListingService {
 
   async getAllItems() {
     try {
-      const response = axios.get(
+      const response = await axios.get(
         `${this.url}/get-all-items`
       );
-      return await response.json();
+      return response.data;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -16,10 +16,10 @@ export class ListingService {
 
   async searchListings(location, checkin, checkout) {
     try {
-      const response = axios.get(
+      const response = await axios.get(
         `${this.url}/search?location=${location}&checkIn=${checkin}&checkout${checkout}`
       );
-      return await response.json();
+      return response.data;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -27,9 +27,9 @@ export class ListingService {
 
   async getListingById(itemId) {
     try {
-      const response = axios.get(`${this.url}/${itemId}`
+      const response = await axios.get(`${this.url}/${itemId}`
        );
-      return await response.json();
+      return response.data;
     } catch (err) {
       throw new Error(err.message);
     }

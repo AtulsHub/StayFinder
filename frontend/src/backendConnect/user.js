@@ -14,7 +14,9 @@ export class UserService {
         },
         { withCredentials: true }
       );
-      return await response.data;
+      console.log(response);
+      
+      return response.data;
     } catch (err) {
       throw new Error(err.response?.data?.message || err.message);
     }
@@ -30,7 +32,7 @@ export class UserService {
         },
         { withCredentials: true }
       );
-      return await response.data;
+      return response.data;
     } catch (err) {
       throw new Error(err.response?.data?.message || err.message);
     }
@@ -41,7 +43,7 @@ export class UserService {
       const response = await axios.get(`${this.url}/google`, {
         withCredentials: true,
       });
-      return await response.data;
+      return response.data;
     } catch (err) {
       throw new Error(err.response?.data?.message || err.message);
     }
