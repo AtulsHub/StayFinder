@@ -17,7 +17,7 @@ function App() {
         {/* Nested routes under Layout */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/listing" element={<ListingDetail />} />
+          <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />

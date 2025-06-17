@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FaStar,
   FaWifi,
@@ -11,49 +11,65 @@ import {
   FaHeart,
 } from "react-icons/fa";
 import { reviews } from "../pages/Home";
-import { hotels } from "../pages/Home";
-import { Link } from "react-router-dom";
-import SearchByPopularPlaces from "./SearchByPopularPlaces";
+import { Link, useParams } from "react-router-dom";
+import { useState } from "react";
+import listingService from "../backendConnect/listing";
 
 const HotelProductPage = () => {
-  const hotel = {
-    name: "The Royal Orchid",
-    location: "Jaipur, Rajasthan",
-    rating: 4.5,
-    pricePerNight: 4999,
-    description:
-      "Experience luxury at The Royal Orchid, a 5-star hotel offering premium rooms, rooftop dining, and a relaxing spa in the heart of Jaipur.",
-    images: ["/hotel1.jpg", "/hotel2.jpg", "/hotel3.jpg", "/hotel4.jpg"],
-    amenities: ["Free WiFi", "Swimming Pool", "Free Parking", "Restaurant"],
-    host: {
-      name: "Ravi Sharma",
-      about:
-        "Ravi is a passionate hotelier with over 15 years of experience in the hospitality industry. His goal is to make your stay comfortable and memorable.",
-    },
-  };
+  const [hotel, setHotel] = useState({});
+  const [similarHotels, setSimilarHotels] = useState([]);
+  const [show, setShow] = useState(false);
+  const { id } = useParams();
 
-  const similarHotels = [
+  useEffect(() => {
+    const fetchListing = async () => {
+      try {
+        const response = await listingService.getListingById(id);
+        setHotel(response.item);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchListing();
+  }, [id]);
+
+  useEffect(() => {
+    const similarListing = async () => {
+      if (!hotel.location?.state) return; // wait until location is loaded
+      try {
+        const response = await listingService.searchListings(
+          hotel.location.state && hotel.location.city, null, null , 1, 10
+        );
+        setSimilarHotels(response.listings);
+        console.log(response.listings);
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    similarListing();
+  }, [hotel.location]);
+
+  const amenities = [
     {
-      name: "Heritage Haveli",
-      location: "Jaipur",
-      price: 3999,
-      image: "/similar1.jpg",
+      title: "Free WiFi",
+      icon: <FaWifi className=" w-6 h-6" />,
     },
     {
-      name: "Palace View Inn",
-      location: "Jaipur",
-      price: 4499,
-      image: "/similar2.jpg",
+      title: "Swimming Pool",
+      icon: <FaSwimmer className=" w-6 h-6" />,
+    },
+    {
+      title: "Free Parking",
+      icon: <FaParking className=" w-6 h-6" />,
+    },
+    {
+      title: "Restaurant",
+      icon: <FaUtensils className=" w-6 h-6" />,
     },
   ];
-
-  const amenitiesIcons = {
-    "Free WiFi": <FaWifi className=" w-6 h-6" />,
-    "Swimming Pool": <FaSwimmer className=" w-6 h-6" />,
-    "Free Parking": <FaParking className=" w-6 h-6" />,
-    Restaurant: <FaUtensils className=" w-6 h-6" />,
-  };
-
   return (
     <>
       {/* Navbar */}
@@ -66,7 +82,7 @@ const HotelProductPage = () => {
           <div className="flex items-center font-semibold rounded-lg mx-6">
             <h3 className="w-50  ">
               <span className="text-red-600 text-xl">
-                ₹ {hotel.pricePerNight}
+                ₹ {hotel?.pricePerNight}
               </span>
               /night
             </h3>
@@ -97,7 +113,7 @@ const HotelProductPage = () => {
       <div className="px-6 py-10 max-w-6xl mx-auto space-y-10">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-bold">{hotel.name}</h2>
+          <h2 className="text-4xl font-bold">{hotel?.title}</h2>
           <div className="flex gap-4 text-gray-600 text-xl">
             <FaHeart className="cursor-pointer" title="Add to Wishlist" />
             <FaShareAlt className="cursor-pointer" title="Share" />
@@ -105,31 +121,35 @@ const HotelProductPage = () => {
         </div>
 
         {/* Location and rating */}
-        <div className="flex items-center text-gray-600 space-x-4 text-sm">
+        <div className="flex items-center text-gray-600 space-x-4 text-lg">
           <div className="flex items-center gap-1">
             <FaMapMarkerAlt />
-            <span>{hotel.location}</span>
+            <span>
+              {hotel.location?.city}/ {hotel.location?.state}
+            </span>
           </div>
           <div className="flex items-center gap-1">
             <FaStar className="text-yellow-500" />
-            <span>{hotel.rating}</span>
+            <span>4.5</span>
           </div>
         </div>
 
         {/* Images */}
         <div className="grid grid-cols-1  md:grid-cols-2 gap-4 relative ">
+          {hotel.images && hotel.images.length > 0 && (
+            <>
           <img
-            src={hotel.images[1]}
-            alt={`Hotel view 1`}
-            className="w-full min-h-48 object-cover rounded border-1"
+            src={hotel.images[0]?.url || ""}
+            alt={hotel.images[0]?.title || "loading..."}
+            className="w-full h-full object-cover rounded"
           />
-          <div className="grid grid-cols-4 md:grid-cols-2 md:grid-rows-2  gap-4 ">
-            {hotel.images.map((img, index) => (
+          <div className="grid grid-cols-4 md:grid-cols-2 md:grid-rows-2 gap-4 ">
+            {hotel.images.slice(1,5).map((img, index) => (
               <img
                 key={index + 2}
-                src={img[index]}
-                alt={`Hotel view ${index + 2}`}
-                className="w-full md:h-48 object-cover rounded border-1"
+                src={img.url || ""}
+                alt={`Hotel view ${index + 2}`|| "loading..."}
+                className="w-full md:h-48 object-cover rounded hover:scale-110 duration-300"
               />
             ))}
             <p className="w-auto px-2 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-2xl absolute right-1 bottom-1 md:right-4 md:bottom-4 ">
@@ -137,6 +157,8 @@ const HotelProductPage = () => {
               5/10 View more
             </p>
           </div>
+            </>
+            )}
         </div>
 
         {/* Description */}
@@ -155,10 +177,10 @@ const HotelProductPage = () => {
         <h3 className="text-2xl font-semibold ">What this place offers</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mb-8">
           <div className="grid grid-cols-2 md:grid-cols-1 gap-4 text-gray-700 mb-4">
-            {hotel.amenities.map((amenity, index) => (
+            {amenities.map((amenity, index) => (
               <div key={index} className="flex items-center gap-6">
-                {amenitiesIcons[amenity]}
-                <span>{amenity}</span>
+                {amenity.icon}
+                <span>{amenity.title}</span>
               </div>
             ))}
           </div>
@@ -192,7 +214,9 @@ const HotelProductPage = () => {
         {/* Map Section */}
         <div className="border p-4 rounded shadow text-center">
           <h3 className="text-xl font-semibold mb-2">Explore Location</h3>
-          <p className="text-gray-600 mb-4">{hotel.location}</p>
+          <p className="text-gray-600 mb-4">
+            {hotel.location?.city}/ {hotel.location?.state}
+          </p>
           <a
             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
               hotel.location
@@ -207,14 +231,19 @@ const HotelProductPage = () => {
 
         {/* Host Info */}
         <div className="border rounded p-4">
-          <h3 className="text-xl font-semibold mb-2">
-            Hosted by {hotel.host.name}
-          </h3>
+          <h3 className="text-xl font-semibold mb-2">Hosted by (Host name)</h3>
           <div className="flex items-center gap-2 mb-2">
             <FaUserCircle className="text-2xl text-gray-500" />
-            <span>{hotel.host.name}</span>
+            <span>Host name</span>
           </div>
-          <p className="text-gray-700">{hotel.host.about}</p>
+          <p className={`text-gray-700 ${!show? " line-clamp-5" : ""}`}>(Host description) Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tenetur in similique praesentium porro magnam debitis, dolore doloribus odio earum doloremque dicta, quasi consectetur id qui nesciunt omnis ipsa quae voluptate!
+          Voluptatibus modi, commodi asperiores possimus dolores aliquid id similique et, quaerat dignissimos pariatur. Enim illo ea quos eius aliquid, reprehenderit quam quae, eos magni molestias sed, ipsa ipsam ullam quibusdam.
+          Eveniet voluptate, impedit omnis quibusdam laboriosam nam. Magni soluta esse incidunt! Quis error sed dicta reiciendis! Voluptatem accusamus quidem deleniti et ipsa magnam ad perspiciatis, aspernatur cum, soluta, cupiditate exercitationem!
+          Quas magnam quasi enim nihil sed placeat ipsum officia minus itaque cumque illum consequatur adipisci quo quibusdam nostrum tempora quos voluptates odit pariatur deserunt temporibus nulla veritatis, soluta atque. Accusantium.
+          Odio quae deserunt ipsam. Quo nostrum voluptates sed sequi soluta, delectus velit commodi ullam quidem amet nam mollitia doloribus, porro eveniet eum illum! Officia reprehenderit, culpa voluptatibus inventore fuga quisquam?
+          </p>
+          <button className="text-blue-400"
+          onClick={() => setShow((prev) => !prev)}>{!show? " Show more" : "Show less"}</button>
         </div>
 
         {/* Reviews */}
@@ -243,7 +272,8 @@ const HotelProductPage = () => {
         <section>
           <div className="flex justify-between items-center mb-4 md:px-4 px-2 ">
             <h4 className="text-3xl font-semibold">
-              More places near <br className="md:hidden" /> {hotel.location}
+              More places near <br className="md:hidden" />{" "}
+              {hotel.location?.city}, {hotel.location?.state}
             </h4>
             <div>
               <button
@@ -268,37 +298,38 @@ const HotelProductPage = () => {
             id="similar"
             className="flex overflow-x-auto gap-4 scrollbar-hidden scroll-smooth px-10 py-4 cursor-grab select-none"
           >
-            {hotels.map((items, i) => (
-              <Link to="/listing">
+            {similarHotels?.map((items, i) => (
+              <Link to={`/listing/${items._id}`}>
                 <div
-                key={i}
-                className="min-w-[250px] bg-white rounded-xl shadow hover:shadow-md cursor-pointer relative"
-              >
-                <img
-                  src={items.image}
-                  alt={items.name}
-                  className="h-40 w-full object-cover rounded-t-xl"
-                />
-                <FaHeart
-                  className="absolute top-3 right-3 text-white text-xl drop-shadow cursor-pointer hover:scale-110 transition-transform"
-                  title="Add to Wishlist"
-                />
-                <div className="p-3">
-                  <p className="font-semibold text-lg">{items.name}</p>
-                  <p className="text-gray-500 text-sm ">{items.location}</p>
-                  <p className="text-red-500 font-semibold mt-1 "></p>
-                  {items.price}
-                  <button className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg">
-                    Book now
-                  </button>
+                  key={i}
+                  className="min-w-[250px] bg-white rounded-xl shadow hover:shadow-md cursor-pointer relative"
+                >
+                  <img
+                    src={items.images[1].url}
+                    alt={items.title}
+                    className="h-40 w-full object-cover rounded-t-xl"
+                  />
+                  <FaHeart
+                    className="absolute top-3 right-3 text-white text-xl drop-shadow cursor-pointer hover:scale-110 transition-transform"
+                    title="Add to Wishlist"
+                  />
+                  <div className="p-3">
+                    <p className="font-semibold text-lg line-clamp-1 h-[2rem]">{items.title}</p>
+                    <p className="text-gray-500 text-sm ">
+                      {items.location.city}/ {items.location.state}
+                    </p>
+                    <p className="text-red-500 font-semibold mt-1 "></p>
+                    {items.pricePerNight}
+                    <button className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg">
+                      Book now
+                    </button>
+                  </div>
                 </div>
-              </div>
               </Link>
             ))}
           </div>
         </section>
       </div>
-      
     </>
   );
 };

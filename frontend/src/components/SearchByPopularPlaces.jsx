@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { FaHeart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import listingService from "../backendConnect/listing";
+import Loader from "../pages/Loader"
 
 const SearchByPopularPlaces = () => {
   const scrollRefs = useRef([]);
   const [hotelsByPlace, setHotelsByPlace] = useState({});
-  const [location, setLocation] = useState("");
   const places = ["Goa", "Manali", "Mumbai", "Jaipur", "Kerala"];
 
   useEffect(() => {
@@ -14,12 +14,8 @@ const SearchByPopularPlaces = () => {
       const result = {};
       for (const place of places) {
         try {
-          const response = await listingService.searchListings(place);
+          const response = await listingService.searchListings(place, null, null, 1, 10 );
           result[place] = response.listings;
-          console.log(response.listing);
-          console.log(place);
-          
-          
         } catch (error) {
           console.log(`Error loading listings for ${place}:`, error);
           result[place] = [];
@@ -27,7 +23,6 @@ const SearchByPopularPlaces = () => {
       }
       setHotelsByPlace(result);
       console.log(result);
-      
     };
 
     fetchAllListings();
@@ -65,7 +60,6 @@ const SearchByPopularPlaces = () => {
       <div className="space-y-12">
         {places.map((place, idx) => (
           <div key={idx}>
-            
             <div className="flex justify-between items-center mb-4 px-4 ">
               <h4 className="text-2xl font-semibold">{place}</h4>
               <div>
@@ -92,8 +86,8 @@ const SearchByPopularPlaces = () => {
               className="flex overflow-x-auto gap-4 py-2 scrollbar-hidden scroll-smooth px-8 cursor-grab select-none"
               style={{ scrollBehavior: "smooth" }}
             >
-              {(hotelsByPlace[place] || []).map((hotel, i) => (
-                <Link to="/listing">
+              {(hotelsByPlace[place])?.map((hotel, i) => (
+                <Link to={`/listing/${hotel._id}`}>
                   <div
                     key={i}
                     className="min-w-[250px] bg-white rounded-xl shadow hover:shadow-md cursor-pointer relative"
@@ -108,19 +102,23 @@ const SearchByPopularPlaces = () => {
                       title="Add to Wishlist"
                     />
                     <div className="p-3">
-                      <p className="font-semibold text-lg line-clamp-1 h-[2rem]">{hotel.title}</p>
+                      <p className="font-semibold text-lg line-clamp-1 h-[2rem]">
+                        {hotel.title}
+                      </p>
                       <p className="text-gray-500 text-sm ">
                         {hotel.location.city}, {hotel.location.state}
                       </p>
-                      <p className="text-red-500 font-semibold mt-1 ">₹{hotel.pricePerNight}/night</p>
-                      
+                      <p className="text-red-500 font-semibold mt-1 ">
+                        ₹ {hotel.pricePerNight}/night
+                      </p>
+
                       <button className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg">
                         Book now
                       </button>
                     </div>
                   </div>
                 </Link>
-              ))}
+              ))} 
             </div>
           </div>
         ))}
