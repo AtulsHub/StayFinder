@@ -86,7 +86,11 @@ const SearchByPopularPlaces = () => {
               className="flex overflow-x-auto gap-4 py-2 scrollbar-hidden scroll-smooth px-8 cursor-grab select-none"
               style={{ scrollBehavior: "smooth" }}
             >
-              {(hotelsByPlace[place])?.map((hotel, i) => (
+              {(hotelsByPlace[place])?.length === 0 ? (
+            <p className="text-center ext-xl col-span-full text-gray-500">
+              Loading ...
+            </p>
+          ) : ((hotelsByPlace[place])?.map((hotel, i) => (
                 <Link to={`/listing/${hotel._id}`}>
                   <div
                     key={i}
@@ -118,7 +122,7 @@ const SearchByPopularPlaces = () => {
                     </div>
                   </div>
                 </Link>
-              ))} 
+              )))} 
             </div>
           </div>
         ))}
