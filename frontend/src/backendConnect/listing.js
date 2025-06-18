@@ -3,10 +3,10 @@ import axios from "axios";
 export class ListingService {
   url = "http://localhost:8000/api/v1/listing";
 
-  async getAllItems() {
+  async getAllItems( page, perPage) {
     try {
       const response = await axios.get(
-        `${this.url}/get-all-items`
+        `${this.url}/get-all-items?page=${page}&perPage=${perPage}`
       );
       return response.data;
     } catch (err) {

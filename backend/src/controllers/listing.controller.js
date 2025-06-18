@@ -2,11 +2,24 @@ import { Listing } from "../modals/listing.modal.js";
 
 const getAllItems = async (req, res) => {
   try {
-    const listing = await Listing.find();
-    console.log(listing);
+    const { page = 1, perPage = 10 } = req.query;
+
+    // Convert page and perPage to integers
+    const limit = parseInt(perPage);
+    const skip = (parseInt(page) - 1) * limit;
+
+    const query = {};
+    const total = await Listing.countDocuments(query);
+    console.log(total);
+
+    // Apply pagination
+    const listings = await Listing.find(query).skip(skip).limit(limit);
+    console.log(listings);
     res.status(200).json({
       message: "successfully fetched all the listing",
-      listing,
+      total,
+      totalPages: Math.ceil(total / limit),
+      listings,
     });
   } catch (error) {
     console.log(error);
@@ -32,23 +45,15 @@ const getById = async (req, res) => {
     });
 
     console.log(item);
-    
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-
 const searchListings = async (req, res) => {
   try {
-    const {
-      location,
-      checkin,
-      checkout,
-      page = 1,
-      perPage = 10,
-    } = req.query;
+    const { location, checkin, checkout, page = 1, perPage = 10 } = req.query;
 
     // Log incoming query for debugging
     console.log("Received query:", req.query);
@@ -106,11 +111,4 @@ const searchListings = async (req, res) => {
   }
 };
 
-
-
-
-export { 
-    getAllItems, 
-    getById,
-    searchListings
- };
+export { getAllItems, getById, searchListings };
