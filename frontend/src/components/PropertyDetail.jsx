@@ -39,7 +39,11 @@ const HotelProductPage = () => {
       if (!hotel.location?.state) return; // wait until location is loaded
       try {
         const response = await listingService.searchListings(
-          hotel.location.state && hotel.location.city, null, null , 1, 10
+          hotel.location.state && hotel.location.city,
+          null,
+          null,
+          1,
+          10
         );
         setSimilarHotels(response.listings);
         console.log(response.listings);
@@ -138,27 +142,27 @@ const HotelProductPage = () => {
         <div className="grid grid-cols-1  md:grid-cols-2 gap-4 relative ">
           {hotel.images && hotel.images.length > 0 && (
             <>
-          <img
-            src={hotel.images[0]?.url || ""}
-            alt={hotel.images[0]?.title || "loading..."}
-            className="w-full h-full object-cover rounded"
-          />
-          <div className="grid grid-cols-4 md:grid-cols-2 md:grid-rows-2 gap-4 ">
-            {hotel.images.slice(1,5).map((img, index) => (
               <img
-                key={index + 2}
-                src={img.url || ""}
-                alt={`Hotel view ${index + 2}`|| "loading..."}
-                className="w-full md:h-48 object-cover rounded hover:scale-110 duration-300"
+                src={hotel.images[0]?.url || ""}
+                alt={hotel.images[0]?.title || "loading..."}
+                className="w-full h-full object-cover rounded"
               />
-            ))}
-            <p className="w-auto px-2 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-2xl absolute right-1 bottom-1 md:right-4 md:bottom-4 ">
-              {" "}
-              5/10 View more
-            </p>
-          </div>
+              <div className="grid grid-cols-4 md:grid-cols-2 md:grid-rows-2 gap-4 ">
+                {hotel.images.slice(1, 5).map((img, index) => (
+                  <img
+                    key={index + 2}
+                    src={img.url || ""}
+                    alt={`Hotel view ${index + 2}` || "loading..."}
+                    className="w-full md:h-48 object-cover rounded hover:scale-110 duration-300"
+                  />
+                ))}
+                <p className="w-auto px-2 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-2xl absolute right-1 bottom-1 md:right-4 md:bottom-4 ">
+                  {" "}
+                  5/10 View more
+                </p>
+              </div>
             </>
-            )}
+          )}
         </div>
 
         {/* Description */}
@@ -236,14 +240,32 @@ const HotelProductPage = () => {
             <FaUserCircle className="text-2xl text-gray-500" />
             <span>Host name</span>
           </div>
-          <p className={`text-gray-700 ${!show? " line-clamp-5" : ""}`}>(Host description) Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tenetur in similique praesentium porro magnam debitis, dolore doloribus odio earum doloremque dicta, quasi consectetur id qui nesciunt omnis ipsa quae voluptate!
-          Voluptatibus modi, commodi asperiores possimus dolores aliquid id similique et, quaerat dignissimos pariatur. Enim illo ea quos eius aliquid, reprehenderit quam quae, eos magni molestias sed, ipsa ipsam ullam quibusdam.
-          Eveniet voluptate, impedit omnis quibusdam laboriosam nam. Magni soluta esse incidunt! Quis error sed dicta reiciendis! Voluptatem accusamus quidem deleniti et ipsa magnam ad perspiciatis, aspernatur cum, soluta, cupiditate exercitationem!
-          Quas magnam quasi enim nihil sed placeat ipsum officia minus itaque cumque illum consequatur adipisci quo quibusdam nostrum tempora quos voluptates odit pariatur deserunt temporibus nulla veritatis, soluta atque. Accusantium.
-          Odio quae deserunt ipsam. Quo nostrum voluptates sed sequi soluta, delectus velit commodi ullam quidem amet nam mollitia doloribus, porro eveniet eum illum! Officia reprehenderit, culpa voluptatibus inventore fuga quisquam?
+          <p className={`text-gray-700 ${!show ? " line-clamp-5" : ""}`}>
+            (Host description) Lorem ipsum dolor sit amet, consectetur
+            adipisicing elit. Tenetur in similique praesentium porro magnam
+            debitis, dolore doloribus odio earum doloremque dicta, quasi
+            consectetur id qui nesciunt omnis ipsa quae voluptate! Voluptatibus
+            modi, commodi asperiores possimus dolores aliquid id similique et,
+            quaerat dignissimos pariatur. Enim illo ea quos eius aliquid,
+            reprehenderit quam quae, eos magni molestias sed, ipsa ipsam ullam
+            quibusdam. Eveniet voluptate, impedit omnis quibusdam laboriosam
+            nam. Magni soluta esse incidunt! Quis error sed dicta reiciendis!
+            Voluptatem accusamus quidem deleniti et ipsa magnam ad perspiciatis,
+            aspernatur cum, soluta, cupiditate exercitationem! Quas magnam quasi
+            enim nihil sed placeat ipsum officia minus itaque cumque illum
+            consequatur adipisci quo quibusdam nostrum tempora quos voluptates
+            odit pariatur deserunt temporibus nulla veritatis, soluta atque.
+            Accusantium. Odio quae deserunt ipsam. Quo nostrum voluptates sed
+            sequi soluta, delectus velit commodi ullam quidem amet nam mollitia
+            doloribus, porro eveniet eum illum! Officia reprehenderit, culpa
+            voluptatibus inventore fuga quisquam?
           </p>
-          <button className="text-blue-400"
-          onClick={() => setShow((prev) => !prev)}>{!show? " Show more" : "Show less"}</button>
+          <button
+            className="text-blue-400"
+            onClick={() => setShow((prev) => !prev)}
+          >
+            {!show ? " Show more" : "Show less"}
+          </button>
         </div>
 
         {/* Reviews */}
@@ -314,12 +336,16 @@ const HotelProductPage = () => {
                     title="Add to Wishlist"
                   />
                   <div className="p-3">
-                    <p className="font-semibold text-lg line-clamp-1 h-[2rem]">{items.title}</p>
+                    <p className="font-semibold text-lg line-clamp-1 h-[2rem]">
+                      {items.title}
+                    </p>
                     <p className="text-gray-500 text-sm ">
                       {items.location.city}/ {items.location.state}
                     </p>
-                    <p className="text-red-500 font-semibold mt-1 "></p>
-                    {items.pricePerNight}
+                    <p className="text-red-500 font-semibold mt-1 ">
+                      ₹ {items.pricePerNight}/night
+                    </p>
+
                     <button className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg">
                       Book now
                     </button>
