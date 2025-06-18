@@ -1,6 +1,10 @@
-import React, { useState } from "react";
-import { FaStar, FaSearch } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaStar, FaSearch, FaFilter } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import listingService from "../backendConnect/listing";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
 const hotelsList = [
   {
@@ -26,10 +30,70 @@ const hotelsList = [
 
 const HotelStore = () => {
   const [search, setSearch] = useState("");
-  const [priceRange, setPriceRange] = useState([1000, 5000]);
+  const [priceRange, setPriceRange] = useState([1000, 10000]);
   const [selectedRating, setSelectedRating] = useState(null);
   const [typeFilter, setTypeFilter] = useState("");
   const [amenitiesFilter, setAmenitiesFilter] = useState([]);
+  const [hotelResult, setHotelResult] = useState([]);
+  const [searchQueryParams] = useSearchParams();
+  const [location, setLocation] = useState(null);
+  const [checkin, setCheckin] = useState(null);
+  const [checkout, setCheckout] = useState(null);
+  const [newLocation, setNewLocation] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState();
+  const [perPage, setPerPage] = useState(12);
+  const [arrowDown, setArrowDown] = useState(true);
+
+  const getAllHotels = async () => {
+    try {
+      const response = await listingService.getAllItems(page, perPage);
+      setHotelResult(response.listings);
+      console.log(hotelResult);
+      setTotalPages(response.totalPages);
+    } catch (error) {
+      console.log("searchbar error:", error.message);
+    }
+  };
+
+  console.log(location, checkin);
+
+  useEffect(() => {
+    // Extract query params only once when component mounts
+    const loc = searchQueryParams.get("location");
+    const ci = searchQueryParams.get("checkin");
+    const co = searchQueryParams.get("checkout");
+
+    if (loc || ci || co) {
+      setLocation(loc);
+      setCheckin(ci);
+      setCheckout(co);
+    } else {
+      getAllHotels();
+    }
+  }, []);
+
+  useEffect(() => {
+    const searchHotel = async () => {
+      try {
+        const response = await listingService.searchListings(
+          location,
+          checkin || null,
+          checkout || null,
+          page || 1,
+          perPage || 12
+        );
+        setHotelResult(response.listings);
+        setTotalPages(response.totalPages);
+      } catch (error) {
+        console.log("searchHotel error:", error.message);
+      }
+    };
+
+    if (location || checkin || checkout) {
+      searchHotel();
+    }
+  }, [location, checkin, checkout, page, perPage]);
 
   const handleAmenityChange = (amenity) => {
     setAmenitiesFilter((prev) =>
@@ -39,37 +103,133 @@ const HotelStore = () => {
     );
   };
 
-  const filteredHotels = hotelsList.filter((hotel) => {
+  const filteredHotels = hotelResult?.filter((hotel) => {
     return (
-      hotel.name.toLowerCase().includes(search.toLowerCase()) &&
-      hotel.price >= priceRange[0] &&
-      hotel.price <= priceRange[1] &&
-      (!selectedRating || hotel.rating >= selectedRating) &&
-      (!typeFilter || hotel.type === typeFilter) &&
-      amenitiesFilter.every((a) => hotel.amenities.includes(a))
+      hotel.title.toLowerCase().includes(search.toLowerCase()) &&
+      hotel.pricePerNight >= priceRange[0] &&
+      hotel.pricePerNight <= priceRange[1]
+      // (!selectedRating || hotel.rating >= selectedRating) &&
+      // (!typeFilter || hotel.type === typeFilter) &&
+      // amenitiesFilter.every((a) => hotel.amenities.includes(a))
     );
   });
+  //  Page Change Button Component
+  const pageChange = () => {
+    return (
+      <div className="inline-flex justify-end mb-4 px-4  ">
+        <button
+          onClick={() => {
+            if (page > 1) setPage((prev) => prev - 1);
+          }}
+          className="h-10 w-10 pb-1 mx-1 justify-center items-center bg-white hover:bg-gray-100 shadow-lg rounded-full text-3xl"
+        >
+          ‹
+        </button>
+        <p className="m-1">- {page} -</p>
+        <button
+          onClick={() => {
+            if (page < totalPages) setPage((prev) => prev + 1);
+          }}
+          className="h-10 w-10 pb-1 justify-center items-center bg-white hover:bg-gray-100 shadow-lg rounded-full text-3xl"
+        >
+          ›
+        </button>
+      </div>
+    );
+  };
 
   return (
     <div className="p-4 md:p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center text-red-600">
-        Explore Hotels
-      </h2>
-      <div className="flex flex-col md:grid md:grid-cols-4 gap-6 mb-8">
+      {/* Searchbar */}
+      <div
+        className={`flex w-full py-2 px-4 justify-center sticky top-0 z-50 `}
+      >
+        <div className="flex bg-white shadow-md min-w-60 w-100 rounded-xl">
+          <input
+            type="text"
+            placeholder="Type the location here"
+            required
+            className="border-red-400 border-r-none rounded-l-xl p-3 w-full outline-0"
+            onChange={(e) => setNewLocation(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setLocation(newLocation);
+                setPage(1); // Trigger search manually
+              }
+            }}
+          />
+          <button
+            className="bg-red-500 rounded-r-xl w-1/10 text-white px-2 py-2 flex items-center hover:bg-red-600 transition"
+            onClick={() => {
+              setLocation(newLocation);
+              setPage(1);
+            }}
+          >
+            <FaSearch />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center text-xl md:text-2xl mb-4 mt-4 text-end text-red-600">
+        <p className="px-14 hidden md:block"></p>
+        <span className="text-2xl md:text-3xl font-bold">Explore Hotels</span>
+        {/* Page change buttons */}
+        {pageChange()}
+      </div>
+      <div className="flex flex-col md:grid md:grid-cols-4 gap-6 mb-8  ">
         {/* Search & Filters */}
-        <div className="md:col-span-1 space-y-4 bg-white p-4 rounded-xl shadow">
-          <div>
-            <label className="text-sm font-medium">Search</label>
-            <div className="flex items-center border rounded-xl overflow-hidden mt-1">
-              <input
-                type="text"
-                placeholder="Search hotels"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full px-3 py-2 outline-none"
-              />
-              <FaSearch className="mx-3 text-gray-400" />
-            </div>
+        <div className="md:col-span-1 max-h-svh space-y-4 bg-white p-4  rounded-xl shadow md:sticky top-20">
+          <label className="text-lg font-medium flex items-center w-full line-clamp-2 ">
+            Filters{" "}
+            <FaFilter className="text-red-600 inline-block w-4 h-4 mx-3" />{" "}
+            <label className="w-full  flex justify-end px-2 md:hidden">
+              {" "}
+              {arrowDown ? (
+                <IoIosArrowUp
+                  className="w-4 h-4 text-end cursor-pointer"
+                  onClick={() => setArrowDown((prev) => !prev)}
+                />
+              ) : (
+                <IoIosArrowDown
+                  className="w-4 h-4 text-end cursor-pointer"
+                  onClick={() => setArrowDown((prev) => !prev)}
+                />
+              )}
+            </label>
+          </label>
+         <div className={`space-y-3.5 ${
+              arrowDown ? "block" : "hidden"
+            }`}>
+           <div
+            className={`flex items-center rounded-xl overflow-hidden `}
+          >
+            <select
+              value={perPage}
+              onChange={(e) => setPerPage(e.target.value)}
+              className="w-full px-3 py-2 border rounded-xl "
+            >
+              <option value="" className="  text-center bg-blue-50 mb-2">
+                12 (Default)
+              </option>
+              <option
+                value="10"
+                className=" text-center bg-blue-50 mb-2"
+              >
+                10
+              </option>
+              <option
+                value="15"
+                className=" text-center bg-blue-50 mb-2"
+              >
+                15
+              </option>
+              <option
+                value="30"
+                className=" text-center bg-blue-50 mb-2"
+              >
+                30
+              </option>
+            </select>
           </div>
 
           <div>
@@ -135,7 +295,7 @@ const HotelStore = () => {
                 <label key={a} className="flex items-center gap-1 text-sm">
                   <input
                     type="checkbox"
-                    checked={amenitiesFilter.includes(a)}
+                    checked={amenitiesFilter?.includes(a)}
                     onChange={() => handleAmenityChange(a)}
                   />
                   {a.charAt(0).toUpperCase() + a.slice(1)}
@@ -144,43 +304,51 @@ const HotelStore = () => {
             </div>
           </div>
         </div>
+         </div>
 
         {/* Results */}
         <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredHotels.length === 0 ? (
+          {filteredHotels?.length === 0 ? (
             <p className="text-center col-span-full text-gray-500">
               No hotels match your filters.
             </p>
           ) : (
-            filteredHotels.map((hotel, i) => (
-              <Link to="/listing" >
-              <div
-                key={i}
-                className="bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition"
-              >
-                <img
-                  src={hotel.image}
-                  alt={hotel.name}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold">{hotel.name}</h3>
-                  <p className="text-sm text-gray-500">{hotel.location}</p>
-                  <div className="flex items-center gap-1 text-yellow-400 text-sm mt-1">
-                    <FaStar /> {hotel.rating}
+            filteredHotels?.map((hotel, i) => (
+              <Link to={`/listing${hotel._id}`}>
+                <div
+                  key={i}
+                  className="bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition"
+                >
+                  <img
+                    src={hotel.images[0].url}
+                    alt={hotel.title}
+                    className="w-full h-40 object-cover"
+                  />
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold line-clamp-1">
+                      {hotel.title}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {hotel.location.city}/ {hotel.location.state}
+                    </p>
+                    <div className="flex items-center gap-1 text-yellow-400 text-sm mt-1">
+                      <FaStar /> 4.5
+                    </div>
+                    <p className="text-red-500 font-semibold mt-2">
+                      ₹{hotel.pricePerNight}/night
+                    </p>
+                    <button className="w-full mt-3 bg-red-500 text-white py-2 rounded-xl hover:bg-red-600">
+                      Book Now
+                    </button>
                   </div>
-                  <p className="text-red-500 font-semibold mt-2">
-                    ₹{hotel.price}/night
-                  </p>
-                  <button className="w-full mt-3 bg-red-500 text-white py-2 rounded-xl hover:bg-red-600">
-                    Book Now
-                  </button>
                 </div>
-              </div>
               </Link>
             ))
           )}
         </div>
+      </div>
+      <div className="flex-row-reverse items-center text-center z-80 text-xl text-red-500 ">
+        {pageChange()}
       </div>
     </div>
   );

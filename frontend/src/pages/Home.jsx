@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import SearchByPopularPlaces from "../components/SearchByPopularPlaces";
-
+import timeout from "react";
 import {
   FaSearch,
   FaUserCircle,
@@ -22,13 +22,10 @@ import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PopularListing from "../components/PopularListing";
-
-export const hotels = Array.from({ length: 10 }, (_, i) => ({
-  name: `Hotel ${i + 1}`,
-  image: `https://source.unsplash.com/featured/?hotel,room,${i}`,
-  location: `City ${i + 1}, India`,
-  price: `₹${3000 + i * 500}/night`,
-}));
+import listingService from "../backendConnect/listing";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { onBoardProduct } from "../store/productSlice.js";
 
 const facilities = [
   {
@@ -73,56 +70,72 @@ export const reviews = [
 ];
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const location = formData.get("location");
+    const checkin = formData.get("checkin");
+    console.log(checkin, location);
+    navigate(`/store?location=${location}&checkin=${checkin}`);
+  };
+
   return (
     <div className="font-sans bg-white text-gray-800">
       {/* Navbar */}
-      <Navbar />
+      <Navbar/>
       {/* Hero */}
       <section
         className="relative h-[85vh] bg-center bg-cover flex items-center justify-center"
         style={{
-          backgroundImage: `url("/coverImage1.jpg")`,
+          backgroundImage: `url(./coverImage2.jpg)`,
         }}
       >
-        <div
-          className="bg-opacity-60 w-full h-full absolute"
-          
-        />
+        <div className="bg-black opacity-40 w-full h-full absolute" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="relative text-center text-white z-10 px-4"
+          className="relative text-center z-10 px-4 "
         >
-          <h2 className="text-4xl md:text-6xl font-bold  text-shadow-black">
+          <h2 className="text-4xl md:text-6xl font-bold text-white drop-shadow-none">
             Book Your Dream Stay
           </h2>
-          <p className="text-lg mt-4 max-w-xl mx-auto">
+          <p className="text-xl mt-4 max-w-xl mx-auto text-white drop-shadow-none drop-shadow-sm">
             Unique hotels and stays around the world. Find comfort, style and
             convenience wherever you go.
           </p>
         </motion.div>
       </section>
       {/* Search Bar */}
-      <div className="flex flex-col md:flex-row justify-center items-center gap-4 p-6 bg-white shadow-lg mx-6 rounded-xl -mt-16 relative">
-        <input
-          type="text"
-          placeholder="Location"
-          className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
-        />
-        <input
-          type="date"
-          className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
-        />
-        <input
-          type="number"
-          placeholder="Guests"
-          className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
-        />
-        <button className="bg-red-500 text-white px-5 py-3 rounded-lg flex items-center gap-2 hover:bg-red-600 transition">
-          <FaSearch /> Search
-        </button>
-      </div>
+      <form onSubmit={handleSubmit}>
+        <div className="flex flex-col md:flex-row justify-center items-center gap-4 p-6 bg-white shadow-lg mx-6 rounded-xl -mt-16 relative">
+          <input
+            type="text"
+            name="location"
+            placeholder="Location"
+            required
+            className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
+          />
+          <input
+            type="date"
+            name="checkin"
+            className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
+          />
+          <input
+            type="number"
+            placeholder="Guests"
+            className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
+          />
+          <button
+            className="bg-red-500 text-white px-5 py-3 rounded-lg flex items-center gap-2 hover:bg-red-600 transition"
+            type="submit"
+          >
+            <FaSearch /> Search
+          </button>
+        </div>
+      </form>
       {/* 1. Popular Listings */}
       <PopularListing />
       {/* 2. Search by Popular Places */}
