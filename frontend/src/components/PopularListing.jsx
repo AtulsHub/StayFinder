@@ -1,23 +1,55 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaHeart } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import listingService from "../backendConnect/listing";
+import wishlistService from "../backendConnect/wishlist";
+import { useSelector } from "react-redux"; // for userId
+import WishlistIcon from "./WishlistIcon";
 
 const PopularListing = () => {
   const [popularHotels, setPopularHotels] = useState({});
   const places = ["Goa", "Manali", "Mumbai", "Jaipur", "Kerala"];
+  const [wishlist, setWishlist] = useState([]);
+  const navigate = useNavigate();
+  const userId = useSelector((state) => state.user?.userData?._id); // update based on your user slice
+
+  console.log("userId:", userId);
+
+  useEffect(() => {
+    if (userId) fetchWishlist();
+  }, [userId]);
+
+  const fetchWishlist = async () => {
+    try {
+      const data = await wishlistService.getWishlist(userId);
+      console.log("Wishlist data:", data);
+
+      // Case 1: data.listings = [id, id, id]
+      setWishlist(data.listings || []);
+
+      // Case 2: if it returns objects with _id, then map:
+      // setWishlist((data.listings || []).map((item) => item._id));
+    } catch (err) {
+      console.error("Error fetching wishlist:", err.message);
+    }
+  };
+
   useEffect(() => {
     const fetchAllListings = async () => {
       const result = {};
       for (const place of places) {
         try {
-          const response = await listingService.searchListings(place, null, null, 1, 2);
+          const response = await listingService.searchListings(
+            place,
+            null,
+            null,
+            1,
+            2
+          );
           result[place] = response.listings;
-          console.log("response" ,response.listings);
-          
-          
+          console.log("response", response.listings);
         } catch (error) {
           console.log(`Error loading listings for ${place}:`, error);
           result[place] = [];
@@ -25,13 +57,29 @@ const PopularListing = () => {
       }
       setPopularHotels(result);
       console.log(popularHotels);
-
     };
 
     fetchAllListings();
   }, []);
-        console.log(popularHotels);
+  console.log(popularHotels);
 
+  const toggleWishlist = async (hotelId) => {
+    console.log("Toggle wishlist for hotelId:", hotelId);
+
+    try {
+      const isWishlisted = wishlist.some((hotel) => hotel._id === hotelId);
+
+      if (isWishlisted) {
+        await wishlistService.removeFromWishlist(userId, hotelId);
+      } else {
+        await wishlistService.addToWishlist(userId, hotelId);
+      }
+
+      fetchWishlist(); // refresh list
+    } catch (err) {
+      console.error("Wishlist toggle error:", err.message);
+    }
+  };
 
   return (
     <div className="px-6 py-16 bg-gray-50">
@@ -61,40 +109,48 @@ const PopularListing = () => {
         className="flex overflow-x-auto gap-6 scrollbar-hidden scroll-smooth px-10 py-4"
       >
         {places.map((place) =>
+          popularHotels[place]?.map((hotel, idx) => (
+            <div key={hotel._id || idx}>
+              <motion.div
+                key={idx}
+                whileHover={{ scale: 1.03 }}
+                className="min-w-[250px] bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 relative"
+              >
+                {/* <img
+                  src={hotel.images[0].url}
+                  alt={hotel.title}
+                  className="h-55 w-full object-cover"
+                /> */}
+                <div className="relative">
+                  <img
+                    src={hotel.images[0].url}
+                    alt={hotel.title}
+                    onClick={() => navigate(`/listing/${hotel._id}`)}
+                  />
+                  <WishlistIcon hotel={hotel} />
+                </div>
 
-        popularHotels[place]?.map((hotel, idx) => (
-          <Link to={`/listing/${hotel._id}`}>
-            <motion.div
-              key={idx}
-              whileHover={{ scale: 1.03 }}
-              className="min-w-[250px] bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 relative"
-            >
-              <img
-                src={hotel.images[0].url}
-                alt={hotel.title}
-                className="h-55 w-full object-cover"
-              />
-              <FaHeart
-                className="absolute top-3 right-3 text-white text-xl drop-shadow cursor-pointer hover:scale-110 transition-transform"
-                title="Add to Wishlist"
-              />
-              <div className="p-5">
-                <h4 className="text-xl font-bold text-gray-800 line-clamp-1">
-                  {hotel.title}
-                </h4>
-                <p className="text-gray-500 text-sm mt-1">
-                  {hotel.location?.city}/ {hotel.location?.state}
-                </p>
-                <p className="text-red-500 font-semibold mt-1">
-                  ₹ {hotel.pricePerNight}/night
-                </p>
-                <button className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg">
-                  Book now
-                </button>
-              </div>
-            </motion.div>
-          </Link>
-        )))}
+                <div className="p-5">
+                  <h4 className="text-xl font-bold text-gray-800 line-clamp-1">
+                    {hotel.title}
+                  </h4>
+                  <p className="text-gray-500 text-sm mt-1">
+                    {hotel.location?.city}/ {hotel.location?.state}
+                  </p>
+                  <p className="text-red-500 font-semibold mt-1">
+                    ₹ {hotel.pricePerNight}/night
+                  </p>
+                  <button
+                    className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg"
+                    onClick={() => navigate(`/listing/${hotel._id}`)}
+                  >
+                    Book now
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

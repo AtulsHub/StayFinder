@@ -2,19 +2,28 @@ import React, { useEffect, useRef, useState } from "react";
 import { FaHeart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import listingService from "../backendConnect/listing";
-import Loader from "../pages/Loader"
+import Loader from "../pages/Loader";
+import WishlistIcon from "./WishlistIcon";
+import { useNavigate } from "react-router-dom";
 
 const SearchByPopularPlaces = () => {
   const scrollRefs = useRef([]);
   const [hotelsByPlace, setHotelsByPlace] = useState({});
   const places = ["Goa", "Manali", "Mumbai", "Jaipur", "Kerala"];
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAllListings = async () => {
       const result = {};
       for (const place of places) {
         try {
-          const response = await listingService.searchListings(place, null, null, 1, 10 );
+          const response = await listingService.searchListings(
+            place,
+            null,
+            null,
+            1,
+            10
+          );
           result[place] = response.listings;
         } catch (error) {
           console.log(`Error loading listings for ${place}:`, error);
@@ -86,43 +95,48 @@ const SearchByPopularPlaces = () => {
               className="flex overflow-x-auto gap-4 py-2 scrollbar-hidden scroll-smooth px-8 cursor-grab select-none"
               style={{ scrollBehavior: "smooth" }}
             >
-              {(hotelsByPlace[place])?.length === 0 ? (
-            <p className="text-center ext-xl col-span-full text-gray-500">
-              Loading ...
-            </p>
-          ) : ((hotelsByPlace[place])?.map((hotel, i) => (
-                <Link to={`/listing/${hotel._id}`}>
-                  <div
-                    key={i}
-                    className="min-w-[250px] bg-white rounded-xl shadow hover:shadow-md cursor-pointer relative"
-                  >
-                    <img
-                      src={hotel.images[0].url}
-                      alt={hotel.title}
-                      className="h-40 w-full object-cover rounded-t-xl"
-                    />
-                    <FaHeart
-                      className="absolute top-3 right-3 text-white text-xl drop-shadow cursor-pointer hover:scale-110 transition-transform"
-                      title="Add to Wishlist"
-                    />
-                    <div className="p-3">
-                      <p className="font-semibold text-lg line-clamp-1 h-[2rem]">
-                        {hotel.title}
-                      </p>
-                      <p className="text-gray-500 text-sm ">
-                        {hotel.location.city}, {hotel.location.state}
-                      </p>
-                      <p className="text-red-500 font-semibold mt-1 ">
-                        ₹ {hotel.pricePerNight}/night
-                      </p>
+              {hotelsByPlace[place]?.length === 0 ? (
+                <p className="text-center ext-xl col-span-full text-gray-500">
+                  Loading ...
+                </p>
+              ) : (
+                hotelsByPlace[place]?.map((hotel, i) => (
+                  <div key={hotel._id || i}>
+                    <div
+                      key={i}
+                      className="min-w-[250px] bg-white rounded-xl shadow hover:shadow-md cursor-pointer relative"
+                    >
+                      {/* <img
+                        src={hotel.images[0].url}
+                        alt={hotel.title}
+                        className="h-40 w-full object-cover rounded-t-xl"
+                      /> */}
+                      <div className="relative">
+                        <img src={hotel.images[0].url} alt={hotel.title} 
+                        onClick={() => navigate(`/listing/${hotel._id}`)}/>
+                        <WishlistIcon hotel={hotel} />
+                      </div>
 
-                      <button className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg">
-                        Book now
-                      </button>
+                      <div className="p-3">
+                        <p className="font-semibold text-lg line-clamp-1 h-[2rem]">
+                          {hotel.title}
+                        </p>
+                        <p className="text-gray-500 text-sm ">
+                          {hotel.location.city}, {hotel.location.state}
+                        </p>
+                        <p className="text-red-500 font-semibold mt-1 ">
+                          ₹ {hotel.pricePerNight}/night
+                        </p>
+
+                        <button className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg"
+                        onClick={() => navigate(`/listing/${hotel._id}`)}>
+                          Book now
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </Link>
-              )))} 
+                ))
+              )}
             </div>
           </div>
         ))}

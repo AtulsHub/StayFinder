@@ -19,6 +19,7 @@ app.use(cookieParser())
 import userRouter from './routes/user.route.js'
 import listingRouter from './routes/listing.route.js'
 import bookingRoutes from "./routes/booking.route.js";
+import wishlistRoutes from "./routes/wishlist.route.js";
 
 
 
@@ -26,6 +27,8 @@ import bookingRoutes from "./routes/booking.route.js";
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/listing", listingRouter)
 app.use("/api/v1/bookings", bookingRoutes);
+app.use("/api/v1/wishlist", wishlistRoutes);
+
 
 
 

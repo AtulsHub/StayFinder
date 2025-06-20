@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/userSlice";
 import userService from "../backendConnect/user";
 import Sidebar from "./Sidebar";
+import WishlistIcon from "./WishlistIcon";
 
 const HotelProductPage = () => {
   const [hotel, setHotel] = useState({});
@@ -111,95 +112,101 @@ const HotelProductPage = () => {
       {/* Navbar */}
 
       <nav className="md:flex flex-col justify-between md:items-between md:px-6 px-2 py-3 bg-white shadow-md sticky top-0 z-50">
-       <div className="flex justify-between items-center w-full md:w-auto">
-        <div className="flex">
-          <Sidebar />
-         <Link to="/" className=" flex md:inline-block">
-          <h1 className="text-2xl font-bold text-red-500">StayFinder</h1>
-        </Link>
-        </div>
-        <div className="md:flex flex-col-reverse md:flex-row inline-block justify-around md:items-center items-end gap-3 mr-1 ">
-          <div className="items-center font-semibold rounded-lg md:mx-6 hidden md:flex">
-            <h3 className="w-50  ">
-              <span className="text-red-600 text-xl">
-                ₹ {hotel?.pricePerNight}
-              </span>
-              /night
-            </h3>
-            <button
-              className=" bg-red-500 w-full h-10 hover:bg-red-400 cursor-pointer text-white text-md rounded-lg"
-              onClick={scrollToBooking}
-            >
-              Book Now
-            </button>
+        <div className="flex justify-between items-center w-full md:w-auto">
+          <div className="flex">
+            <Sidebar />
+            <Link to="/" className=" flex md:inline-block">
+              <h1 className="text-2xl font-bold text-red-500">StayFinder</h1>
+            </Link>
           </div>
-          <div className="flex items-between md:gap-6 gap-3">
-            <Link to="/" className="hover:text-red-500 transition">
-              Home
-            </Link>
-            <Link
-              to="/store"
-              className="hover:text-red-500 transition hidden md:block"
-            >
-              Explore
-            </Link>
-            
-            {selector && (
+          <div className="md:flex flex-col-reverse md:flex-row inline-block justify-around md:items-center items-end gap-3 mr-1 ">
+            <div className="items-center font-semibold rounded-lg md:mx-6 hidden md:flex">
+              <h3 className="w-50  ">
+                <span className="text-red-600 text-xl">
+                  ₹ {hotel?.pricePerNight}
+                </span>
+                /night
+              </h3>
+              <button
+                className=" bg-red-500 w-full h-10 hover:bg-red-400 cursor-pointer text-white text-md rounded-lg"
+                onClick={scrollToBooking}
+              >
+                Book Now
+              </button>
+            </div>
+            <div className="flex items-between md:gap-6 gap-3">
+              <Link to="/" className="hover:text-red-500 transition">
+                Home
+              </Link>
+              <Link
+                to="/store"
+                className="hover:text-red-500 transition hidden md:block"
+              >
+                Explore
+              </Link>
+
+              {selector && (
+                <div
+                  className=" hover:text-red-500 hover:underline transition"
+                  onClick={() => {
+                    selector && handleLogout();
+                  }}
+                >
+                  <label className="cursor-pointer hidden md:block">
+                    Logout
+                  </label>
+                </div>
+              )}
+              <Link to="/wishlist">
+                <FaHeart
+                  className="text-xl text-red-500 cursor-pointer hover:scale-110 transition"
+                  title="Wishlist"
+                />
+              </Link>
               <div
-                className=" hover:text-red-500 hover:underline transition"
+                className="hover:scale-110 duration-100 "
                 onClick={() => {
-                  selector && handleLogout();
+                  selector ? handleLogout() : navigate("/login");
                 }}
               >
-                <label className="cursor-pointer hidden md:block">Logout</label>
+                <label>
+                  {selector ? (
+                    <FaUserCircle className="text-2xl cursor-pointer " />
+                  ) : (
+                    "Login"
+                  )}{" "}
+                </label>
               </div>
-            )}
-            <Link to="/wishlist">
-              <FaHeart
-                className="text-xl text-red-500 cursor-pointer hover:scale-110 transition"
-                title="Wishlist"
-              />
-            </Link>
-            <div
-              className="hover:scale-110 duration-100 "
-              onClick={() => {
-                selector ? handleLogout() : navigate("/login");
-              }}
-            >
-              <label>
-                {selector ? (
-                  <FaUserCircle className="text-2xl cursor-pointer " />
-                ) : (
-                  "Login"
-                )}{" "}
-              </label>
             </div>
           </div>
-          
         </div>
-       </div>
         <div className="flex items-center font-semibold rounded-lg md:hidden justify-end mt-2">
-            <h3 className="w-auto px-4   ">
-              <span className="text-red-600 text-xl">
-                ₹ {hotel?.pricePerNight}
-              </span>
-              /night
-            </h3>
-            <button
-              className=" bg-red-500 md:w-full w-1/2 h-10 hover:bg-red-400 cursor-pointer text-white text-md rounded-lg"
-              onClick={scrollToBooking}
-            >
-              Book Now
-            </button>
-          </div>
+          <h3 className="w-auto px-4   ">
+            <span className="text-red-600 text-xl">
+              ₹ {hotel?.pricePerNight}
+            </span>
+            /night
+          </h3>
+          <button
+            className=" bg-red-500 md:w-full w-1/2 h-10 hover:bg-red-400 cursor-pointer text-white text-md rounded-lg"
+            onClick={scrollToBooking}
+          >
+            Book Now
+          </button>
+        </div>
       </nav>
       <div className="px-6 py-10 max-w-6xl mx-auto space-y-10">
         {/* Header */}
         <div className="flex justify-between items-center">
           <h2 className="text-4xl font-bold">{hotel?.title}</h2>
           <div className="flex gap-4 text-gray-600 text-xl">
-            <FaHeart className="cursor-pointer" title="Add to Wishlist" />
-            <FaShareAlt className="cursor-pointer" title="Share" />
+            <div className="relative border-1">
+              <WishlistIcon hotel={hotel} />
+              <FaShareAlt
+                className="absolute top-2.5 cursor-pointer"
+                title="Share"
+              />
+            </div>
           </div>
         </div>
 
@@ -383,20 +390,20 @@ const HotelProductPage = () => {
             className="flex overflow-x-auto gap-4 scrollbar-hidden scroll-smooth px-10 py-4 cursor-grab select-none"
           >
             {similarHotels?.map((items, i) => (
-              <Link to={`/listing/${items._id}`}>
+              <div>
                 <div
                   key={i}
                   className="min-w-[250px] bg-white rounded-xl shadow hover:shadow-md cursor-pointer relative"
                 >
-                  <img
-                    src={items.images[1].url}
-                    alt={items.title}
-                    className="h-40 w-full object-cover rounded-t-xl"
-                  />
-                  <FaHeart
-                    className="absolute top-3 right-3 text-white text-xl drop-shadow cursor-pointer hover:scale-110 transition-transform"
-                    title="Add to Wishlist"
-                  />
+                  <div className="relative">
+                    <img
+                      src={hotel.images[1].url}
+                      alt={hotel.title}
+                      className="h-40 w-full object-cover rounded-t-xl"
+                      onClick={() => navigate(`/listing/${hotel._id}`)}
+                    />
+                    <WishlistIcon hotel={items} />
+                  </div>
                   <div className="p-3">
                     <p className="font-semibold text-lg line-clamp-1 h-[2rem]">
                       {items.title}
@@ -413,7 +420,7 @@ const HotelProductPage = () => {
                     </button>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </section>
