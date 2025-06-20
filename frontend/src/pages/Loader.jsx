@@ -1,7 +1,7 @@
 import React from "react";
 import userService from "../backendConnect/user";
 import { login } from "../store/userSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
@@ -10,21 +10,27 @@ import { FaHotel, FaBed, FaSearch, FaPlane, FaHeart } from "react-icons/fa";
 const icons = [FaHotel, FaBed, FaSearch, FaPlane, FaHeart];
 
 const Loader = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+//   const selector = useSelector((state) => state.user?.userData?.id);
+// console.log(selector);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await userService.fetchLoggedInUser();
-        console.log(res);
+//   useEffect(() => {
+//     if(!selector){
+//       (async () => {
+//       try {
+//         const res = await userService.fetchLoggedInUser();
+//         console.log(res);
+//         if (res?.user) {
+//           dispatch(login({ userData: res.user }));
+//         }
 
-        dispatch(login({ userData: res.user }));
-      } catch (err) {
-        console.error("OAuth Login Failed", err);
-      }
-    })();
-  }, [dispatch]);
+//       } catch (err) {
+//         console.error("OAuth Login Failed", err);
+//       }
+//     })();
+//     }
+//   }, [selector, dispatch]);
 
   return (
     <motion.div
