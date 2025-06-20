@@ -3,12 +3,16 @@ import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import userService from "../backendConnect/user";
+import { login } from "../store/userSlice";
+import { useDispatch } from "react-redux";
+import GoogleLogin from "../components/auth/GoogleLogin";
 
 const SignupPage = () => {
   const [popup, setPopup] = useState({ show: false, message: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   console.log(import.meta.env.VITE_GOOGLE_REDIRECT_URI);
 
   const showPopup = (message) => {
@@ -16,15 +20,12 @@ const SignupPage = () => {
     setTimeout(() => setPopup({ show: false, message: "" }), 3000);
   };
 
-  const handleGoogleSignup = () => {
-    window.open(import.meta.env.VITE_GOOGLE_REDIRECT_URI);
-  };
-
   const signUp = async (name, email, password) => {
     try {
       const response = await userService.registerUser(name, email, password);
       console.log(response.message);
       showPopup(response.message);
+      if (response.user) dispatch(login({ userData: response.user }));
       setTimeout(() => navigate("/"), 2000);
     } catch (error) {
       showPopup(error.message);
@@ -129,15 +130,12 @@ const SignupPage = () => {
           <div className="absolute left-0 right-0 top-1/2 h-px bg-gray-200 z-0" />
         </div>
 
-        <button
-          onClick={handleGoogleSignup}
-          className="w-full border border-gray-300 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-50 transition shadow-sm"
-        >
+        <GoogleLogin>
           <FaGoogle className="text-red-500 text-lg" />
           <span className="text-sm font-medium text-gray-700">
-            Sign up with Google
+            Continue with Google
           </span>
-        </button>
+        </GoogleLogin>
 
         <p className="mt-8 text-center text-sm text-gray-600">
           Already have an account?{" "}

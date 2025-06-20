@@ -1,33 +1,35 @@
 import React, { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
 import userService from "../backendConnect/user";
 import { useNavigate } from "react-router-dom";
+import { login } from "../store/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import GoogleLogin from "./auth/GoogleLogin";
 
 const LoginPage = () => {
   const [popup, setPopup] = useState({ show: false, message: "" });
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const selector = useSelector((state) => state.user.status);
 
   const showPopup = (message) => {
     setPopup({ show: true, message });
     setTimeout(() => setPopup({ show: false, message: "" }), 3000); // auto-close after 3s
   };
 
-  const handleGoogleLogin = () => {
-    window.open(import.meta.env.VITE_GOOGLE_REDIRECT_URI);
-  };
-  
   const logIn = async (email, password) => {
-      try {
-        const response = await userService.loginUser(email, password);
-        console.log(response.message);
-        showPopup(response.message);
-        setTimeout(() => navigate("/"), 2000);
-      } catch (error) {
-        showPopup(error.message);
-        console.log("login error", error);
-      }
-    };
+    try {
+      const response = await userService.loginUser(email, password);
+      console.log(response.message);
+      showPopup(response.message);
+      if (response.user) dispatch(login({ userData: response.user }));
+      setTimeout(() => navigate("/"), 2000);
+    } catch (error) {
+      showPopup(error.message);
+      console.log("login error", error);
+    }
+  };
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -35,7 +37,7 @@ const LoginPage = () => {
     const password = formData.get("password");
 
     // actual auth here...
-    logIn(email, password)
+    logIn(email, password);
   };
 
   return (
@@ -55,7 +57,9 @@ const LoginPage = () => {
         </p>
         <form onSubmit={handleFormSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">Email</label>
+            <label className="block text-sm font-medium mb-1 text-gray-700">
+              Email
+            </label>
             <input
               type="email"
               name="email"
@@ -65,7 +69,9 @@ const LoginPage = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">Password</label>
+            <label className="block text-sm font-medium mb-1 text-gray-700">
+              Password
+            </label>
             <input
               type="password"
               name="password"
@@ -87,17 +93,19 @@ const LoginPage = () => {
           <div className="absolute left-0 right-0 top-1/2 h-px bg-gray-200 z-0" />
         </div>
 
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full border border-gray-300 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-50 transition shadow-sm"
-        >
+        <GoogleLogin>
           <FaGoogle className="text-red-500 text-lg" />
-          <span className="text-sm font-medium text-gray-700">Continue with Google</span>
-        </button>
+          <span className="text-sm font-medium text-gray-700">
+            Continue with Google
+          </span>
+        </GoogleLogin>
 
         <p className="mt-8 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-red-500 font-semibold hover:underline">
+          <Link
+            to="/register"
+            className="text-red-500 font-semibold hover:underline"
+          >
             Sign up here
           </Link>
         </p>

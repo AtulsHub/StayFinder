@@ -9,8 +9,13 @@ import Dashboard from "./pages/Dashboard";
 import Wishlist from "./pages/Wishlist";
 import Layout from "./pages/Layout";
 import "./tailwind.css";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "./store/userSlice";
+import userService from "./backendConnect/user";
 
-function App() {
+const App = () => {
+
   return (
     <Router>
       <Routes>

@@ -15,7 +15,7 @@ export class UserService {
         { withCredentials: true }
       );
       console.log(response);
-      
+
       return response.data;
     } catch (err) {
       throw new Error(err.response?.data?.message || err.message);
@@ -53,6 +53,18 @@ export class UserService {
     try {
       const response = await axios.get(`${this.url}/me`, {
         withCredentials: true,
+      });
+
+      return response.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || err.message);
+    }
+  }
+
+  async performLogout() {
+    try {
+      const response = await axios.get(`${this.url}/logout`, {
+        withCredentials: true, // important to include cookies
       });
       return response.data;
     } catch (err) {

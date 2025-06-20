@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import SearchByPopularPlaces from "../components/SearchByPopularPlaces";
-import timeout from "react";
 import {
   FaSearch,
   FaUserCircle,
@@ -22,10 +21,8 @@ import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PopularListing from "../components/PopularListing";
-import listingService from "../backendConnect/listing";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { onBoardProduct } from "../store/productSlice.js";
+
 
 const facilities = [
   {
@@ -81,10 +78,11 @@ export default function LandingPage() {
     navigate(`/store?location=${location}&checkin=${checkin}`);
   };
 
+
   return (
     <div className="font-sans bg-white text-gray-800">
       {/* Navbar */}
-      <Navbar/>
+      <Navbar />
       {/* Hero */}
       <section
         className="relative h-[85vh] bg-center bg-cover flex items-center justify-center"
