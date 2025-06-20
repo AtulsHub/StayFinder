@@ -22,7 +22,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PopularListing from "../components/PopularListing";
 import { useNavigate } from "react-router-dom";
-
+import DateInput from "../components/DateInput";
 
 const facilities = [
   {
@@ -68,6 +68,7 @@ export const reviews = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [checkIn, setCheckIn] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -78,14 +79,13 @@ export default function LandingPage() {
     navigate(`/store?location=${location}&checkin=${checkin}`);
   };
 
-
   return (
     <div className="font-sans bg-white text-gray-800">
       {/* Navbar */}
       <Navbar />
       {/* Hero */}
       <section
-        className="relative h-[85vh] bg-center bg-cover flex items-center justify-center"
+        className="relative md:h-[85vh] h-[50vh] bg-center bg-cover flex items-center justify-center"
         style={{
           backgroundImage: `url(./coverImage2.jpg)`,
         }}
@@ -114,20 +114,22 @@ export default function LandingPage() {
             name="location"
             placeholder="Location"
             required
-            className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
+            className="border p-3.5 rounded-sm w-full md:w-1/4 outline-none focus:border-2 focus:border-blue-600"
           />
-          <input
-            type="date"
+          <DateInput
             name="checkin"
+            label="Check-in Date"
+            value={checkIn}
+            onChange={setCheckIn}
             className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
           />
           <input
             type="number"
             placeholder="Guests"
-            className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
+            className="border p-3.5 rounded-sm w-full md:w-1/4 outline-none focus:border-2 focus:border-blue-600"
           />
           <button
-            className="bg-red-500 text-white px-5 py-3 rounded-lg flex items-center gap-2 hover:bg-red-600 transition"
+            className="bg-red-500 text-white px-5 py-3.5 rounded-lg flex items-center gap-2 hover:bg-red-600 transition"
             type="submit"
           >
             <FaSearch /> Search

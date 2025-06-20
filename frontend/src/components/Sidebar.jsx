@@ -32,19 +32,6 @@ const handleLogout = async () => {
   navigate("/");
 };
 
-// const checkLogin = async () => {
-//       if (!user) {
-//         const res = await userService.fetchLoggedInUser();
-//         console.log(res);
-        
-//         if (res?.user?._id) {
-//            
-//           console.log(res.user._id);
-          
-//         }
-//       }
-//     };
-
   return (
     <div className="flex relative">
       {/* Overlay */}
@@ -84,7 +71,7 @@ const handleLogout = async () => {
       </div>
 
       {/* Content */}
-      <div className="flex justify-center items-center px-2 md:px-0 ">
+      <div className="flex justify-center items-center ">
         {/* Toggle Button */}
         <button
           onClick={toggleSidebar}
@@ -100,7 +87,7 @@ const handleLogout = async () => {
 const SidebarLink = ({ to, icon, label }) => (
   <Link
     to={to}
-    className="flex items-center gap-4 p-2 hover:bg-red-600 rounded transition"
+    className="flex text-xl items-center gap-4 p-2 hover:bg-red-600 rounded transition"
   >
     {icon}
     <span>{label}</span>

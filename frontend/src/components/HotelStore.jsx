@@ -69,9 +69,9 @@ const HotelStore = () => {
       setCheckin(ci);
       setCheckout(co);
     } else {
-      getAllHotels();
+      getAllHotels(page, perPage);
     }
-  }, []);
+  }, [page, perPage]);
 
   useEffect(() => {
     const searchHotel = async () => {
@@ -138,71 +138,20 @@ const HotelStore = () => {
     );
   };
 
-  return (
-    <div className="p-4 md:p-6 bg-gray-100 min-h-screen">
-      {/* Searchbar */}
+  const filters = (className) => {
+    return (
       <div
-        className={`flex w-full py-2 px-4 justify-center sticky top-0 z-50 `}
+        className={`md:col-span-1 max-h-[32rem] space-y-4 bg-white p-4 rounded-xl shadow md:sticky top-14 z-40 ${
+          arrowDown ? "hidden" : "block"
+        } ${className}`}
       >
-        <div className="flex bg-white shadow-md min-w-60 w-100 rounded-xl">
-          <input
-            type="text"
-            placeholder="Type the location here"
-            required
-            className="border-red-400 border-r-none rounded-l-xl p-3 w-full outline-0"
-            onChange={(e) => setNewLocation(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setLocation(newLocation);
-                setPage(1); // Trigger search manually
-              }
-            }}
-          />
-          <button
-            className="bg-red-500 rounded-r-xl w-1/10 text-white px-2 py-2 flex items-center hover:bg-red-600 transition"
-            onClick={() => {
-              setLocation(newLocation);
-              setPage(1);
-            }}
-          >
-            <FaSearch />
-          </button>
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center text-xl md:text-2xl mb-4 mt-4 text-end text-red-600">
-        <p className="px-14 hidden md:block"></p>
-        <span className="text-2xl md:text-3xl font-bold">Explore Hotels</span>
-        {/* Page change buttons */}
-        {pageChange()}
-      </div>
-      <div className="flex flex-col md:grid md:grid-cols-4 gap-6 mb-8  ">
-        {/* Search & Filters */}
-        <div className="md:col-span-1 max-h-svh space-y-4 bg-white p-4  rounded-xl shadow md:sticky top-20">
-          <label className="text-lg font-medium flex items-center w-full line-clamp-2 ">
-            Filters{" "}
-            <FaFilter className="text-red-600 inline-block w-4 h-4 mx-3" />{" "}
-            <label className="w-full  flex justify-end px-2 md:hidden">
-              {" "}
-              {arrowDown ? (
-                <IoIosArrowUp
-                  className="w-4 h-4 text-end cursor-pointer"
-                  onClick={() => setArrowDown((prev) => !prev)}
-                />
-              ) : (
-                <IoIosArrowDown
-                  className="w-4 h-4 text-end cursor-pointer"
-                  onClick={() => setArrowDown((prev) => !prev)}
-                />
-              )}
-            </label>
-          </label>
-         <div className={`space-y-3.5 ${
-              arrowDown ? "block" : "hidden"
-            }`}>
-           <div
-            className={`flex items-center rounded-xl overflow-hidden `}
-          >
+        <label className="text-xl font-medium flex items-center w-full ">
+          <FaFilter className="text-red-600 inline-block w-6 h-6 mx-2" />{" "}
+          Filters{" "}
+        </label>
+        <div className={`space-y-3.5`}>
+          <label className="text-sm font-medium ">Items/ page</label>
+          <div className={`flex items-center rounded-xl overflow-hidden mt-2 `}>
             <select
               value={perPage}
               onChange={(e) => setPerPage(e.target.value)}
@@ -211,22 +160,13 @@ const HotelStore = () => {
               <option value="" className="  text-center bg-blue-50 mb-2">
                 12 (Default)
               </option>
-              <option
-                value="10"
-                className=" text-center bg-blue-50 mb-2"
-              >
+              <option value="10" className=" text-center bg-blue-50 mb-2">
                 10
               </option>
-              <option
-                value="15"
-                className=" text-center bg-blue-50 mb-2"
-              >
+              <option value="15" className=" text-center bg-blue-50 mb-2">
                 15
               </option>
-              <option
-                value="30"
-                className=" text-center bg-blue-50 mb-2"
-              >
+              <option value="30" className=" text-center bg-blue-50 mb-2">
                 30
               </option>
             </select>
@@ -304,7 +244,64 @@ const HotelStore = () => {
             </div>
           </div>
         </div>
-         </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="p-4 md:p-6 bg-gray-100 min-h-screen  ">
+      {/* Searchbar */}
+      <div
+        className={`flex-col md:flex w-full py-2 px-2 justify-center items-center sticky top-0 z-50`}
+      >
+        <div className="flex bg-white shadow-md max-w-100 w-full rounded-xl">
+          <div
+            className={`bg-red-100 py-2 md:hidden rounded-l-xl flex items-center ${
+              arrowDown ? `shadow-xl` : `shadow-md`
+            }`}
+            onClick={() => setArrowDown((prev) => !prev)}
+          >
+            <FaFilter
+              className={`text-red-600 inline-block w-7 h-7 mx-4 duration-100 ${
+                arrowDown ? `scale-80` : ``
+              }`}
+            />{" "}
+          </div>
+          <input
+            type="text"
+            placeholder="Type the location here"
+            required
+            className="border-red-400 border-r-none p-3 w-full outline-0 focus:shadow-xl text-center "
+            onChange={(e) => setNewLocation(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setLocation(newLocation);
+                setPage(1); // Trigger search manually
+              }
+            }}
+          />
+          <button
+            className="bg-red-500 rounded-r-xl w-3/15 shadow-xl text-white px-2 py-2 flex items-center justify-center hover:bg-red-600 transition"
+            onClick={() => {
+              setLocation(newLocation);
+              setPage(1);
+            }}
+          >
+            <FaSearch />
+          </button>
+        </div>
+        {filters("md:hidden mt-4")}
+      </div>
+
+      <div className="flex justify-between items-center text-xl md:text-2xl mb-4 mt-4 text-end text-red-600">
+        <p className="px-14 hidden md:block"></p>
+        <span className="text-2xl md:text-3xl font-bold">Explore Hotels</span>
+        {/* Page change buttons */}
+        {pageChange()}
+      </div>
+      <div className={`flex flex-col md:grid md:grid-cols-4 gap-6 mb-8  `}>
+        {/* Filters */}
+        {filters("md:block hidden")}
 
         {/* Results */}
         <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

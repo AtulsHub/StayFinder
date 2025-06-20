@@ -11,15 +11,28 @@ import {
   FaHeart,
 } from "react-icons/fa";
 import { reviews } from "../pages/Home";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import listingService from "../backendConnect/listing";
+import "react-calendar/dist/Calendar.css";
+import BookingSection from "./BookingSection";
+import { useRef } from "react";
+import ImageGalleryExpand from "./ImageGalleryExpand";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../store/userSlice";
+import userService from "../backendConnect/user";
+import Sidebar from "./Sidebar";
 
 const HotelProductPage = () => {
   const [hotel, setHotel] = useState({});
   const [similarHotels, setSimilarHotels] = useState([]);
   const [show, setShow] = useState(false);
   const { id } = useParams();
+  const bookingRef = useRef();
+  const [showImage, setShowImage] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const selector = useSelector((state) => state.user.status);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -56,6 +69,17 @@ const HotelProductPage = () => {
     similarListing();
   }, [hotel.location]);
 
+  const scrollToBooking = () => {
+    bookingRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleLogout = async () => {
+    const response = await userService.performLogout();
+    console.log(response);
+    dispatch(logout()); // clears Redux + localStorage
+    navigate("/");
+  };
+
   const amenities = [
     {
       title: "Free WiFi",
@@ -74,45 +98,100 @@ const HotelProductPage = () => {
       icon: <FaUtensils className=" w-6 h-6" />,
     },
   ];
+
   return (
     <>
+      {showImage && (
+        <ImageGalleryExpand
+          images={hotel?.images || []}
+          setShowImage={setShowImage}
+        />
+      )}
+
       {/* Navbar */}
 
-      <nav className="flex justify-between items-center md:px-6 px-2 py-3 bg-white shadow-md sticky top-0 z-50">
-        <Link to="/">
+      <nav className="md:flex flex-col justify-between md:items-between md:px-6 px-2 py-3 bg-white shadow-md sticky top-0 z-50">
+       <div className="flex justify-between items-center w-full md:w-auto">
+        <div className="flex">
+          <Sidebar />
+         <Link to="/" className=" flex md:inline-block">
           <h1 className="text-2xl font-bold text-red-500">StayFinder</h1>
         </Link>
-        <div className="flex flex-col-reverse md:flex-row justify-around items-center gap-3 ">
-          <div className="flex items-center font-semibold rounded-lg mx-6">
+        </div>
+        <div className="md:flex flex-col-reverse md:flex-row inline-block justify-around md:items-center items-end gap-3 mr-1 ">
+          <div className="items-center font-semibold rounded-lg md:mx-6 hidden md:flex">
             <h3 className="w-50  ">
               <span className="text-red-600 text-xl">
                 ₹ {hotel?.pricePerNight}
               </span>
               /night
             </h3>
-            <button className=" bg-red-500 w-full h-10 hover:bg-red-400 cursor-pointer text-white text-md rounded-lg">
+            <button
+              className=" bg-red-500 w-full h-10 hover:bg-red-400 cursor-pointer text-white text-md rounded-lg"
+              onClick={scrollToBooking}
+            >
               Book Now
             </button>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-between md:gap-6 gap-3">
             <Link to="/" className="hover:text-red-500 transition">
               Home
             </Link>
-            <Link to="/store" className="hover:text-red-500 transition">
+            <Link
+              to="/store"
+              className="hover:text-red-500 transition hidden md:block"
+            >
               Explore
             </Link>
-            <Link to="/login" className="hover:text-red-500 transition">
-              Login
-            </Link>
+            
+            {selector && (
+              <div
+                className=" hover:text-red-500 hover:underline transition"
+                onClick={() => {
+                  selector && handleLogout();
+                }}
+              >
+                <label className="cursor-pointer hidden md:block">Logout</label>
+              </div>
+            )}
             <Link to="/wishlist">
               <FaHeart
                 className="text-xl text-red-500 cursor-pointer hover:scale-110 transition"
                 title="Wishlist"
               />
             </Link>
-            <FaUserCircle className="text-2xl" />
+            <div
+              className="hover:scale-110 duration-100 "
+              onClick={() => {
+                selector ? handleLogout() : navigate("/login");
+              }}
+            >
+              <label>
+                {selector ? (
+                  <FaUserCircle className="text-2xl cursor-pointer " />
+                ) : (
+                  "Login"
+                )}{" "}
+              </label>
+            </div>
           </div>
+          
         </div>
+       </div>
+        <div className="flex items-center font-semibold rounded-lg md:hidden justify-end mt-2">
+            <h3 className="w-auto px-4   ">
+              <span className="text-red-600 text-xl">
+                ₹ {hotel?.pricePerNight}
+              </span>
+              /night
+            </h3>
+            <button
+              className=" bg-red-500 md:w-full w-1/2 h-10 hover:bg-red-400 cursor-pointer text-white text-md rounded-lg"
+              onClick={scrollToBooking}
+            >
+              Book Now
+            </button>
+          </div>
       </nav>
       <div className="px-6 py-10 max-w-6xl mx-auto space-y-10">
         {/* Header */}
@@ -156,10 +235,13 @@ const HotelProductPage = () => {
                     className="w-full md:h-48 object-cover rounded hover:scale-110 duration-300"
                   />
                 ))}
-                <p className="w-auto px-2 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-2xl absolute right-1 bottom-1 md:right-4 md:bottom-4 ">
+                <button
+                  className="w-auto px-2 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-2xl absolute right-1 bottom-1 md:right-4 md:bottom-4 "
+                  onClick={() => setShowImage(true)}
+                >
                   {" "}
                   5/10 View more
-                </p>
+                </button>
               </div>
             </>
           )}
@@ -180,7 +262,7 @@ const HotelProductPage = () => {
         {/* Amenities */}
         <h3 className="text-2xl font-semibold ">What this place offers</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mb-8">
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-4 text-gray-700 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-8 text-gray-700 mb-4">
             {amenities.map((amenity, index) => (
               <div key={index} className="flex items-center gap-6">
                 {amenity.icon}
@@ -188,32 +270,12 @@ const HotelProductPage = () => {
               </div>
             ))}
           </div>
-          {/* Booking & Map */}
-          <div className="border p-4 rounded shadow">
-            <h3 className="text-xl font-semibold mb-2">Book Your Stay</h3>
-            <p className="text-gray-700 mb-2">
-              Price per night:{" "}
-              <span className="text-lg text-red-500 font-semibold">
-                ₹{hotel.pricePerNight}
-              </span>
-            </p>
-            <div className="space-y-4">
-              <input
-                type="date"
-                className="w-full border rounded p-2"
-                placeholder="Check-in"
-              />
-              <input
-                type="date"
-                className="w-full border rounded p-2"
-                placeholder="Check-out"
-              />
-              <button className="w-full bg-red-500 text-white rounded py-2 hover:bg-red-400 cursor-pointer">
-                Book Now
-              </button>
-            </div>
+          <div className="flex bold text-2xl text-white bg-gradient-to-tl from-blue-400 to-purple-600  items-center justify-center gap-6 w-full border-blue-400 border-2 h-full text-center">
+            Advertisement section
           </div>
         </div>
+        {/* Booking Form */}
+        <BookingSection hotel={hotel} ref={bookingRef} />
 
         {/* Map Section */}
         <div className="border p-4 rounded shadow text-center">

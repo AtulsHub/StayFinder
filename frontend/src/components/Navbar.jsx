@@ -41,12 +41,24 @@ const Navbar = () => {
           >
             Explore
           </Link>
+          {selector && (
+            <div
+              className=" hover:text-red-500 hover:underline transition"
+              onClick={() => {
+                selector && handleLogout();
+              }}
+            >
+              <label className="cursor-pointer">Logout</label>
+            </div>
+          )}
+
           <Link to="/wishlist">
             <FaHeart
               className="text-xl text-red-500 cursor-pointer hover:scale-110 transition"
               title="Wishlist"
             />
           </Link>
+
           <div
             className="hover:scale-110 duration-100 "
             onClick={() => {
@@ -61,16 +73,6 @@ const Navbar = () => {
               )}{" "}
             </label>
           </div>
-          {selector && (
-            <div
-            className=" hover:text-red-500 hover:underline transition"
-              onClick={() => {
-                selector && handleLogout();
-              }}
-            >
-              <label className="cursor-pointer">Logout</label>
-            </div>
-          )}
         </div>
       </nav>
     </>

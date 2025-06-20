@@ -45,7 +45,7 @@ export class BookingService {
     }
   }
 
-  async getBookingById(bookingId) {
+  async deleteBookingById(bookingId) {
     try {
       const response = axios.delete(`${this.url}/${bookingId}`);
       return await response.json();
