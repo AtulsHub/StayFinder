@@ -3,6 +3,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { styled } from "@mui/material/styles";
+import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
@@ -10,28 +11,23 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 
-// Custom day styling for calendar
-const CustomDay = styled("div")(({ selected, past }) => ({
-  width: 36,
-  height: 36,
-  lineHeight: "36px",
-  textAlign: "center",
-  borderRadius: "50%",
+// Styled PickersDay
+const CustomPickersDay = styled(PickersDay)(({ selected, past }) => ({
   backgroundColor: selected ? "#ef4444" : "transparent",
   color: past ? "#9ca3af" : selected ? "#fff" : "#111827",
   fontWeight: selected ? "bold" : "normal",
-  cursor: past ? "not-allowed" : "pointer",
+  pointerEvents: past ? "none" : "auto",
   "&:hover": {
     backgroundColor: past ? "transparent" : "#fee2e2",
   },
 }));
 
-const DateInput = ({
-  label = "Select date",
+const CustomDateInput = ({
+  label = "Select Date",
   value,
   onChange,
+  minDate = dayjs(),
   className = "",
-  minDate = dayjs(), // Default to today
 }) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -43,31 +39,21 @@ const DateInput = ({
         format="YYYY-MM-DD"
         slots={{
           day: (props) => {
-            const date = props.day;
-            const isPast = date.isBefore(dayjs(), "day");
-            const isSelected = value && date.isSame(value, "day");
-
-            const handleClick = () => {
-              if (!isPast) {
-                props.onClick(); // <- critical to allow internal MUI selection
-                onChange(date);
-              }
-            };
+            const isPast = props.day.isBefore(dayjs(), "day");
+            const isSelected = value && props.day.isSame(value, "day");
 
             return (
-              <CustomDay
-                past={isPast}
+              <CustomPickersDay
+                {...props}
                 selected={isSelected}
-                onClick={handleClick}
-              >
-                {date.date()}
-              </CustomDay>
+                past={isPast}
+                disabled={isPast}
+              />
             );
           },
         }}
         slotProps={{
           textField: {
-            fullWidth: false,
             variant: "outlined",
             className,
           },
@@ -77,4 +63,4 @@ const DateInput = ({
   );
 };
 
-export default DateInput;
+export default CustomDateInput;

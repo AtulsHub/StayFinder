@@ -22,7 +22,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PopularListing from "../components/PopularListing";
 import { useNavigate } from "react-router-dom";
-import DateInput from "../components/DateInput";
+import CustomDateInput from "../components/CustomDateInput";
+
 
 const facilities = [
   {
@@ -74,9 +75,8 @@ export default function LandingPage() {
     e.preventDefault();
     const formData = new FormData(e.target);
     const location = formData.get("location");
-    const checkin = formData.get("checkin");
-    console.log(checkin, location);
-    navigate(`/store?location=${location}&checkin=${checkin}`);
+    console.log(checkIn, location);
+    navigate(`/store?location=${location}&checkin=${checkIn}`);
   };
 
   return (
@@ -116,11 +116,13 @@ export default function LandingPage() {
             required
             className="border p-3.5 rounded-sm w-full md:w-1/4 outline-none focus:border-2 focus:border-blue-600"
           />
-          <DateInput
+          <CustomDateInput
+            value={checkIn}
             name="checkin"
             label="Check-in Date"
-            value={checkIn}
-            onChange={setCheckIn}
+            onChange={(newDate) => {
+              setCheckIn(newDate);
+            }}
             className="border p-3 rounded-lg w-full md:w-1/4 focus:ring-2 focus:ring-red-400"
           />
           <input

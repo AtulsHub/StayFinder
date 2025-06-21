@@ -64,7 +64,7 @@ const MyWishlist = () => {
             You have no hotels in your wishlist.
           </p>
         ) : (
-          wishlist.map((hotel, i) => (
+          wishlist?.map((hotel, i) => (
             <div
               key={hotel._id || i}
               className="bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition relative"

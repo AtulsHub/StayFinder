@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import listingService from "../backendConnect/listing";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import WishlistIcon from "./WishlistIcon";
+import { useNavigate } from "react-router-dom";
 
 const hotelsList = [
   {
@@ -44,7 +46,7 @@ const HotelStore = () => {
   const [totalPages, setTotalPages] = useState();
   const [perPage, setPerPage] = useState(12);
   const [arrowDown, setArrowDown] = useState(true);
-
+  const navigate = useNavigate();
   const getAllHotels = async () => {
     try {
       const response = await listingService.getAllItems(page, perPage);
@@ -252,9 +254,9 @@ const HotelStore = () => {
     <div className="p-4 md:p-6 bg-gray-100 min-h-screen  ">
       {/* Searchbar */}
       <div
-        className={`flex-col md:flex w-full py-2 px-2 justify-center items-center sticky top-0 z-50`}
+        className={`flex-col md:flex w-full py-2 px-2 justify-center items-center sticky top-0 z-50 `}
       >
-        <div className="flex bg-white shadow-md max-w-100 w-full rounded-xl">
+        <div className="flex bg-white shadow-md max-w-100 w-full rounded-xl md:absolute md:top-0 md:mt-2">
           <div
             className={`bg-red-100 py-2 md:hidden rounded-l-xl flex items-center ${
               arrowDown ? `shadow-xl` : `shadow-md`
@@ -293,7 +295,7 @@ const HotelStore = () => {
         {filters("md:hidden mt-4")}
       </div>
 
-      <div className="flex justify-between items-center text-xl md:text-2xl mb-4 mt-4 text-end text-red-600">
+      <div className="flex justify-between items-center text-xl md:text-2xl mb-4 mt-4 md:mt-10 text-end text-red-600">
         <p className="px-14 hidden md:block"></p>
         <span className="text-2xl md:text-3xl font-bold">Explore Hotels</span>
         {/* Page change buttons */}
@@ -311,16 +313,20 @@ const HotelStore = () => {
             </p>
           ) : (
             filteredHotels?.map((hotel, i) => (
-              <Link to={`/listing${hotel._id}`}>
+              <div className="w-full" key={hotel._id || i}>
                 <div
-                  key={i}
+                  
                   className="bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition"
                 >
-                  <img
-                    src={hotel.images[0].url}
-                    alt={hotel.title}
-                    className="w-full h-40 object-cover"
-                  />
+                  <div className="relative">
+                    <img
+                      src={hotel.images[1].url}
+                      alt={hotel.title}
+                      className="h-40 w-full object-cover rounded-t-xl"
+                      onClick={() => navigate(`/listing/${hotel._id}`)}
+                    />
+                    <WishlistIcon hotel={hotel} />
+                  </div>
                   <div className="p-4">
                     <h3 className="text-lg font-semibold line-clamp-1">
                       {hotel.title}
@@ -334,12 +340,15 @@ const HotelStore = () => {
                     <p className="text-red-500 font-semibold mt-2">
                       ₹{hotel.pricePerNight}/night
                     </p>
-                    <button className="w-full mt-3 bg-red-500 text-white py-2 rounded-xl hover:bg-red-600">
+                    <button
+                      className="w-full mt-3 bg-red-500 text-white py-2 rounded-xl hover:bg-red-600"
+                      onClick={() => navigate(`/listing/${hotel._id}`)}
+                    >
                       Book Now
                     </button>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))
           )}
         </div>
