@@ -60,15 +60,10 @@ The frontend is built using React and Tailwind CSS. It provides a user-friendly 
 ## Project Goals
 
 - Build a functional prototype with property listing, search, and booking features.
-- Implement user authentication for both guests and hosts.
+- Implement user authentication 
 - Create a user-friendly interface using React and Tailwind CSS.
 
-## Unique Features (Optional)
+## Unique Features
 
 - Implement search filters for location, price, and date.
-- Integrate a map feature using Google Maps or Mapbox.
-- Mock payment integration using Stripe.
-
-## Contribution
-
-Contributions are welcome! Please feel free to submit issues or pull requests to improve the project.
+- Integrate a map feature using Google Maps.
