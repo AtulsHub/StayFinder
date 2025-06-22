@@ -63,7 +63,39 @@ The frontend is built using React and Tailwind CSS. It provides a user-friendly 
 - Implement user authentication 
 - Create a user-friendly interface using React and Tailwind CSS.
 
-## Unique Features
+## ✅ Features Implemented:
 
 - Implement search filters for location, price, and date.
-- Integrate a map feature using Google Maps.
+
+-Homepage displaying popular stays
+Search by location, check-in date, guest count
+
+
+-Login and Signup (including Google OAuth integration)
+
+-Individual Stay Product Page with details
+
+-Interactive Image Gallery for each listing
+
+-Fully Responsive Design
+
+-Date selection via integrated calendar
+
+-"View on Map" feature using embedded maps
+
+-Wishlist functionality – add, remove, clear
+
+-Smooth navigation and consistent UI/UX
+
+
+## 🛠️ Tech Stack:
+
+-Frontend: React.js
+
+-Backend: Node.js, Express.js
+
+-Database: MongoDB
+
+-Authentication: Google OAuth
+
+
