@@ -19,13 +19,9 @@ const Layout = () => {
 
   return (
     <>
-      {showLoader ? (
-        <Loader />
-      ) : (
-        <>
+       
           <Outlet />
-        </>
-      )}
+      
     </>
   );
 };

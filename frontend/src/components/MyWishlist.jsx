@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const MyWishlist = () => {
   const userId = useSelector((state) => state.user?.userData?._id);
+  const isLogin = useSelector((state) => state.user.status);
   const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
 
@@ -61,7 +62,7 @@ const MyWishlist = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {wishlist.length === 0 ? (
           <p className="col-span-full text-center text-gray-500 text-lg">
-            You have no hotels in your wishlist.
+            {isLogin? 'You have no hotels in your wishlist.': 'Login to see your wislist.'}
           </p>
         ) : (
           wishlist?.map((hotel, i) => (

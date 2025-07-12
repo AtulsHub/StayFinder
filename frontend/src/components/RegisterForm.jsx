@@ -6,29 +6,30 @@ import userService from "../backendConnect/user";
 import { login } from "../store/userSlice";
 import { useDispatch } from "react-redux";
 import GoogleLogin from "../components/auth/GoogleLogin";
+import NotificationPopup from "./utils/NotificationBar";
 
 const SignupPage = () => {
-  const [popup, setPopup] = useState({ show: false, message: "" });
+  const [notification, setNotification] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   console.log(import.meta.env.VITE_GOOGLE_REDIRECT_URI);
 
-  const showPopup = (message) => {
-    setPopup({ show: true, message });
-    setTimeout(() => setPopup({ show: false, message: "" }), 3000);
+  const showPopup = (message, type) => {
+    setNotification({ message: message, type: "info" });
+    // auto-close after 3s
   };
 
   const signUp = async (name, email, password) => {
     try {
       const response = await userService.registerUser(name, email, password);
       console.log(response.message);
-      showPopup(response.message);
+      showPopup(response.message, "info");
       if (response.user) dispatch(login({ userData: response.user }));
       setTimeout(() => navigate("/"), 2000);
     } catch (error) {
-      showPopup(error.message);
+      showPopup(error.message, "error");
       console.log("login error", error);
     }
   };
@@ -51,10 +52,12 @@ const SignupPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-100 to-pink-200 flex items-center justify-center px-4 py-4 md:p-8 relative">
-      {popup.show && (
-        <div className="fixed top-5 px-6 py-3 bg-white border border-gray-200 shadow-lg rounded-xl text-sm text-gray-800 z-50 animate-fade-in-down">
-          {popup.message}
-        </div>
+      {notification && (
+        <NotificationPopup
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
       )}
 
       <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full animate-fade-in">

@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import listingService from "../backendConnect/listing";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-import WishlistIcon from "./WishlistIcon";
+import WishlistIcon from "./utils/WishlistIcon";
 import { useNavigate } from "react-router-dom";
 
 const hotelsList = [

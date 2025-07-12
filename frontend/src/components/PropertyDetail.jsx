@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/userSlice";
 import userService from "../backendConnect/user";
 import Sidebar from "./Sidebar";
-import WishlistIcon from "./WishlistIcon";
+import WishlistIcon from "./utils/WishlistIcon";
 
 const HotelProductPage = () => {
   const [hotel, setHotel] = useState({});

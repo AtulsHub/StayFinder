@@ -6,7 +6,8 @@ import { useState, useEffect } from "react";
 import listingService from "../backendConnect/listing";
 import wishlistService from "../backendConnect/wishlist";
 import { useSelector } from "react-redux"; // for userId
-import WishlistIcon from "./WishlistIcon";
+import WishlistIcon from "./utils/WishlistIcon";
+import Loader from "../pages/Loader";
 
 const PopularListing = () => {
   const [popularHotels, setPopularHotels] = useState({});
@@ -14,14 +15,15 @@ const PopularListing = () => {
   const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
   const userId = useSelector((state) => state.user?.userData?._id); // update based on your user slice
-
   console.log("userId:", userId);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (userId) fetchWishlist();
   }, [userId]);
 
   const fetchWishlist = async () => {
+
     try {
       const data = await wishlistService.getWishlist(userId);
       console.log("Wishlist data:", data);
@@ -38,6 +40,8 @@ const PopularListing = () => {
 
   useEffect(() => {
     const fetchAllListings = async () => {
+          setIsLoading((prev) => !prev);
+
       const result = {};
       for (const place of places) {
         try {
@@ -57,6 +61,7 @@ const PopularListing = () => {
       }
       setPopularHotels(result);
       console.log(popularHotels);
+      setIsLoading((prev) => !prev);
     };
 
     fetchAllListings();
