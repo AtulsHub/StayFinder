@@ -1,4 +1,6 @@
 import { Listing } from "../modals/listing.modal.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+
 
 const getAllItems = async (req, res) => {
   try {
@@ -111,4 +113,130 @@ const searchListings = async (req, res) => {
   }
 };
 
-export { getAllItems, getById, searchListings };
+const createListing = async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      location,
+      pricePerNight,
+      host,
+      availableDates,
+    } = req.body;
+ console.log( title,
+      description,
+      location,
+      pricePerNight,
+      host,
+      availableDates,);
+ 
+    if (!title || !location || !pricePerNight || !host) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing required fields" });
+    }
+
+    // Parse nested fields (sent as JSON strings in form-data)
+    const parsedLocation = JSON.parse(location);
+    const parsedDates = availableDates ? JSON.parse(availableDates) : [];
+
+    let images = [];
+
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const result = await uploadOnCloudinary(file.path);
+        if (result) {
+          images.push({
+            url: result.secure_url,
+            title: file.originalname,
+          });
+        }
+      }
+    }
+
+    const listing = await Listing.create({
+      title,
+      description,
+      location: parsedLocation,
+      pricePerNight,
+      availableDates: parsedDates,
+      images,
+      host,
+    });
+
+    res.status(201).json({ success: true, data: listing });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+const updateListing = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    let updates = { ...req.body };
+
+    if (updates.location) {
+      updates.location = JSON.parse(updates.location);
+    }
+
+    if (updates.availableDates) {
+      updates.availableDates = JSON.parse(updates.availableDates);
+    }
+
+    if (req.files && req.files.length > 0) {
+      const images = [];
+      for (const file of req.files) {
+        const result = await uploadOnCloudinary(file.path);
+        if (result) {
+          images.push({
+            url: result.secure_url,
+            title: file.originalname,
+          });
+        }
+      }
+      updates.images = images; // Replace images
+    }
+
+    const updated = await Listing.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updated) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Listing not found" });
+    }
+
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+const deleteListing = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await Listing.findByIdAndDelete(id);
+    if (!deleted) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Listing not found" });
+    }
+
+    res.json({ success: true, message: "Listing deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export {
+  getAllItems,
+  getById,
+  searchListings,
+  createListing,
+  deleteListing,
+  updateListing,
+};

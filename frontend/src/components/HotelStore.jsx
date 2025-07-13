@@ -320,7 +320,7 @@ const HotelStore = () => {
                 >
                   <div className="relative">
                     <img
-                      src={hotel.images[1].url}
+                      src={hotel?.images[1]?.url}
                       alt={hotel.title}
                       className="h-40 w-full object-cover rounded-t-xl"
                       onClick={() => navigate(`/listing/${hotel._id}`)}

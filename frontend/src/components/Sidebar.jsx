@@ -37,7 +37,7 @@ const handleLogout = async () => {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black opacity-50 z-55 md:hidden"
+          className="fixed inset-0 bg-black opacity-50 z-55 lg:hidden "
           onClick={closeSidebar}
         ></div>
       )}

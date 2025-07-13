@@ -21,9 +21,10 @@ const userSchema = new mongoose.Schema(
         return this.provider === "local";
       },
     },
-    isHost: {
-      type: Boolean,
+    hostType: {
+      type: String,
       default: false,
+      trim: true,
     },
   },
   { timestamps: true }
