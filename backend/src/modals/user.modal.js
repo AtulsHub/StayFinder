@@ -9,6 +9,9 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    avatar:{
+      type: String,
+    },
     email: {
       type: String,
       required: true,

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 const ImageGalleryExpand = ({ images, setShowImage }) => {
   const [showGallery, setShowGallery] = useState(true);
-  console.log(images);
 
   if (!images.length) return null;
 
@@ -21,7 +20,7 @@ const ImageGalleryExpand = ({ images, setShowImage }) => {
             <img
               src={img.url}
               alt={img.title}
-              className="w-full h-48 object-cover"
+              className="w-full h-48 object-contain bg-amber-50"
             />
             <div className="p-2 text-md font-medium  text-white text-center">{img.title}</div>
           </div>

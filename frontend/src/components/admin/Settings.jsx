@@ -36,7 +36,7 @@ const Settings = () => {
 
   const handleSave = () => {
     // Handle save logic here
-    console.log('Settings saved:', settings);
+    // console.log('Settings saved:', settings);
   };
 
   return (

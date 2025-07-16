@@ -9,6 +9,7 @@ import {
   FaUserCircle,
   FaShareAlt,
   FaHeart,
+  FaEdit,
 } from "react-icons/fa";
 import { reviews } from "../pages/Home";
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -17,12 +18,13 @@ import listingService from "../backendConnect/listing";
 import "react-calendar/dist/Calendar.css";
 import BookingSection from "./BookingSection";
 import { useRef } from "react";
-import ImageGalleryExpand from "./ImageGalleryExpand";
+import ImageGalleryExpand from "./utils/ImageGalleryExpand";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../store/userSlice";
+import { logout, login } from "../store/userSlice";
 import userService from "../backendConnect/user";
 import Sidebar from "./Sidebar";
 import WishlistIcon from "./utils/WishlistIcon";
+import NotificationPopup from "./utils/NotificationBar";
 
 const HotelProductPage = () => {
   const [hotel, setHotel] = useState({});
@@ -34,6 +36,55 @@ const HotelProductPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const selector = useSelector((state) => state.user.status);
+  const user = useSelector((state) => state.user.userData);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const menuRef = useRef();
+  const fileInputRef = useRef();
+  const [uploading, setUploading] = useState(false);
+
+  const handleLogout = async () => {
+    const response = await userService.performLogout();
+    dispatch(logout()); 
+    navigate("/");
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const res = await userService.updateUser(user._id, formData);
+
+      if (res?.user) {
+
+        dispatch(login({ userData: res.user }));
+        setNotification({message:"Profile picture updated!", type: 'info'});
+      } else {
+        setNotification({message:"Failed to update profile picture", type:'info'});
+      }
+    } catch (err) {
+      setNotification({message:"Something went wrong while uploading", type:'info'});
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -60,8 +111,6 @@ const HotelProductPage = () => {
           10
         );
         setSimilarHotels(response.listings);
-        console.log(response.listings);
-        console.log(response);
       } catch (error) {
         console.log(error);
       }
@@ -72,13 +121,6 @@ const HotelProductPage = () => {
 
   const scrollToBooking = () => {
     bookingRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handleLogout = async () => {
-    const response = await userService.performLogout();
-    console.log(response);
-    dispatch(logout()); // clears Redux + localStorage
-    navigate("/");
   };
 
   const amenities = [
@@ -102,6 +144,13 @@ const HotelProductPage = () => {
 
   return (
     <>
+    {notification && (
+        <NotificationPopup
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
       {showImage && (
         <ImageGalleryExpand
           images={hotel?.images || []}
@@ -119,7 +168,7 @@ const HotelProductPage = () => {
               <h1 className="text-2xl font-bold text-red-500">StayFinder</h1>
             </Link>
           </div>
-          <div className="md:flex flex-col-reverse md:flex-row inline-block justify-around md:items-center items-end gap-3 mr-1 ">
+          <div className="md:flex flex-col-reverse md:flex-row inline-block justify-around items-center md:items-center gap-4">
             <div className="items-center font-semibold rounded-lg md:mx-6 hidden md:flex">
               <h3 className="w-50  ">
                 <span className="text-red-600 text-xl">
@@ -134,48 +183,96 @@ const HotelProductPage = () => {
                 Book Now
               </button>
             </div>
-            <div className="flex items-between md:gap-6 gap-3">
-              <Link to="/" className="hover:text-red-500 transition">
+            <div className="flex items-between md:gap-10 gap-8">
+              <Link
+                to="/"
+                className="hover:text-red-500 transition mt-1 hidden md:block"
+              >
                 Home
               </Link>
               <Link
                 to="/store"
-                className="hover:text-red-500 transition hidden md:block"
+                className="hover:text-red-500 transition hidden md:block mt-1"
               >
                 Explore
               </Link>
 
-              {selector && (
-                <div
-                  className=" hover:text-red-500 hover:underline transition"
-                  onClick={() => {
-                    selector && handleLogout();
-                  }}
-                >
-                  <label className="cursor-pointer hidden md:block">
-                    Logout
-                  </label>
-                </div>
-              )}
               <Link to="/wishlist">
                 <FaHeart
-                  className="text-xl text-red-500 cursor-pointer hover:scale-110 transition"
+                  className="text-xl text-red-500 cursor-pointer hover:scale-110 transition mt-1.5"
                   title="Wishlist"
                 />
               </Link>
-              <div
-                className="hover:scale-110 duration-100 "
-                onClick={() => {
-                  selector ? handleLogout() : navigate("/login");
-                }}
-              >
-                <label>
+              <div className="relative" ref={menuRef}>
+                <div
+                  className="hover:scale-110 duration-100 shadow-2xl"
+                  onClick={() => {
+                    if (!selector) {
+                      navigate("/login");
+                    } else {
+                      setShowProfileMenu((prev) => !prev);
+                    }
+                  }}
+                >
                   {selector ? (
-                    <FaUserCircle className="text-2xl cursor-pointer " />
+                    <img
+                      src={user.avatar}
+                      className="text-2xl cursor-pointer h-8 w-8 rounded-full border-2 border-red-400 text-center object-contain bg-gradient-to-r from-red-400 to-purple-400"
+                    />
                   ) : (
-                    "Login"
-                  )}{" "}
-                </label>
+                    <label className="cursor-pointer">Login</label>
+                  )}
+                </div>
+
+                {showProfileMenu && selector && (
+                  <div className="absolute right-0 mt-2 w-68 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
+                    <div className="px-4 py-3 border-b flex-col flex items-center">
+                      <div className="relative">
+                        <img
+                          src={user.avatar}
+                          alt={user.name}
+                          className="h-30 w-30 rounded-full shadow-lg p-2 bg-gradient-to-r from-red-400 to-purple-400 text-center object-contain"
+                        />
+                        <FaEdit
+                          className="h-5 w-5 absolute bottom-2 right-2  text-red-500 hover:text-red-600 hover:scale-110 duration-200 cursor-pointer bg-white"
+                          onClick={() => fileInputRef.current.click()}
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                      </div>
+                      <p className="text-sm text-gray-600 mt-2">Signed in as</p>
+                      <p className="text-sm font-medium text-gray-800 truncate">
+                        {user?.email || "User"}
+                      </p>
+                    </div>
+                    {selector && (
+                      <Link
+                        to={
+                          user?.hostType === "admin" ||
+                          user?.hostType === "owner"
+                            ? "/owner"
+                            : "/register-business"
+                        }
+                      >
+                        <label className="block w-full text-center px-4 py-2 border-b text-red-600 hover:bg-red-100 hover:text-red-700 transition">
+                          {" "}
+                          Your Business
+                        </label>
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-center px-4 py-2 rounded-b-xl text-red-600 hover:bg-red-100 hover:text-red-700 transition"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -200,7 +297,7 @@ const HotelProductPage = () => {
         <div className="flex justify-between items-center">
           <h2 className="text-4xl font-bold">{hotel?.title}</h2>
           <div className="flex gap-4 text-gray-600 text-xl">
-            <div className="relative border-1">
+            <div className="relative">
               <WishlistIcon hotel={hotel} />
               <FaShareAlt
                 className="absolute top-2.5 cursor-pointer"
@@ -231,7 +328,7 @@ const HotelProductPage = () => {
               <img
                 src={hotel.images[0]?.url || ""}
                 alt={hotel.images[0]?.title || "loading..."}
-                className="w-full h-full object-cover rounded"
+                className="w-full h-full object-cover rounded p-4 "
               />
               <div className="grid grid-cols-4 md:grid-cols-2 md:grid-rows-2 gap-4 ">
                 {hotel.images.slice(1, 5).map((img, index) => (
@@ -397,9 +494,9 @@ const HotelProductPage = () => {
                 >
                   <div className="relative">
                     <img
-                      src={hotel.images[1].url}
+                      src={hotel.images[1]?.url}
                       alt={hotel.title}
-                      className="h-40 w-full object-cover rounded-t-xl"
+                      className="h-40 w-full object-contain rounded-t-xl"
                       onClick={() => navigate(`/listing/${hotel._id}`)}
                     />
                     <WishlistIcon hotel={items} />

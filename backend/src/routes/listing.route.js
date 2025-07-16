@@ -8,6 +8,7 @@ import {
   createListing,
   deleteListing,
   updateListing,
+  getListingsByUserId
 } from "../controllers/listing.controller.js";
 
 const router = express.Router();
@@ -17,12 +18,16 @@ router.get("/search", searchListings); // Place this before `/:id`
 router.get("/:id", getById);
 
 // Route: Create listing with multiple images
-router.post("/create-listing", upload.array("images", 5), createListing);
+router.post("/create-listing", upload.array("images", 15), createListing);
 
 // Route: Update listing with new images (optional)
 router.put("/update/:id", upload.array("images", 15), updateListing);
 
 // Route: Delete listing
 router.delete("/delete/:id", deleteListing);
+
+router.get("/user/:userId", getListingsByUserId);
+
+
 
 export default router;

@@ -1,59 +1,50 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Outlet,
 } from "react-router-dom";
+
 import Home from "./pages/Home";
 import ListingDetail from "./pages/ListingDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Explore from "./pages/Explore";
-import Dashboard from "./pages/Dashboard";
 import Wishlist from "./pages/Wishlist";
-import Layout from "./pages/Layout";
 import "./tailwind.css";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { login } from "./store/userSlice";
-import userService from "./backendConnect/user";
-import AdminLayout from "./components/admin/AdminLayout";
-import AdminDashboard from "./components/admin/DashBoard";
-import ListingsManagement from "./components/admin/ListingsManagement";
-import BookingsManagement from "./components/admin/BookingsManagement";
-import UserManagement from "./components/admin/UserManagement";
-import Analytics from "./components/admin/Analytics";
-import Settings from "./components/admin/Settings";
-import { BusinessDashboard } from "./components/owner/BusinessDashboard";
+import ConnectBusiness from "./components/owner/ConnectBusiness";
+import Loader from "./pages/Loader.jsx";
+
+// Admin section (lazy-loaded ✅)
+const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
+const AdminDashboard = lazy(() => import("./components/admin/Dashboard"));
+const ListingsManagement = lazy(() => import("./components/admin/ListingsManagement"));
+const BookingsManagement = lazy(() => import("./components/admin/BookingsManagement"));
+const UserManagement = lazy(() => import("./components/admin/UserManagement"));
+const Analytics = lazy(() => import("./components/admin/Analytics"));
+const Settings = lazy(() => import("./components/admin/Settings"));
+
+// Owner section (import normally ⬇️)
 import OwnerLayout from "./components/owner/OwnerLayout";
-import { ListingsList } from "./components/owner/ListingsList";
-import { AddListingForm } from "./components/owner/AddListingForm";
-import { EditListingForm } from "./components/owner/EditListingForm";
-import { DashboardStats } from "./components/owner/DashboardStats";
+import BusinessDashboard from "./components/owner/BusinessDashboard";
+import ListingsList from "./components/owner/ListingsList";
+import AddListingForm from "./components/owner/AddListingForm";
+import OwnerBookingsView from "./components/owner/OwnerBookingsView";
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        {/* Nested routes under Layout */}
-        <Route element={<Layout />}>
+      <Suspense fallback={<Loader />}>
+        <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/listing/:id" element={<ListingDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/store" element={<Explore />} />
           <Route path="/wishlist" element={<Wishlist />} />
-          {/* Admin nested routes */}
-          <Route
-            path="/admin"
-            element={
-              <AdminLayout>
-                <Outlet />
-              </AdminLayout>
-            }
-          >
+          <Route path="/register-business" element={<ConnectBusiness />} />
+
+          {/* Admin nested routes (lazy-loaded ✅) */}
+          <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="listings" element={<ListingsManagement />} />
@@ -63,23 +54,16 @@ const App = () => {
             <Route path="settings" element={<Settings />} />
           </Route>
 
-          <Route
-            path="/owner"
-            element={
-              <OwnerLayout>
-                <Outlet />
-              </OwnerLayout>
-            }
-          >
+          {/* Owner nested routes (regular import ⬇️) */}
+          <Route path="/owner" element={<OwnerLayout />}>
             <Route index element={<BusinessDashboard />} />
             <Route path="dashboard" element={<BusinessDashboard />} />
             <Route path="listings" element={<ListingsList />} />
             <Route path="add-listing" element={<AddListingForm />} />
+            <Route path="booking/:listingId" element={<OwnerBookingsView />} />
           </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        </Route>
-      </Routes>
-    </Router>
+        </Routes>
+      </Suspense>
   );
 };
 

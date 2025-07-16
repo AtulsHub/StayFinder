@@ -1,6 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FaHeart } from "react-icons/fa";
-import { Link } from "react-router-dom";
 import listingService from "../backendConnect/listing";
 import Loader from "../pages/Loader";
 import WishlistIcon from "./utils/WishlistIcon";

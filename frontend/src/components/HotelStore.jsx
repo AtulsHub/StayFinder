@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaStar, FaSearch, FaFilter } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import listingService from "../backendConnect/listing";
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import WishlistIcon from "./utils/WishlistIcon";
 import { useNavigate } from "react-router-dom";
 
@@ -47,18 +44,18 @@ const HotelStore = () => {
   const [perPage, setPerPage] = useState(12);
   const [arrowDown, setArrowDown] = useState(true);
   const navigate = useNavigate();
+
   const getAllHotels = async () => {
     try {
       const response = await listingService.getAllItems(page, perPage);
       setHotelResult(response.listings);
-      console.log(hotelResult);
+      // console.log(hotelResult);
       setTotalPages(response.totalPages);
     } catch (error) {
       console.log("searchbar error:", error.message);
     }
   };
 
-  console.log(location, checkin);
 
   useEffect(() => {
     // Extract query params only once when component mounts
@@ -254,7 +251,7 @@ const HotelStore = () => {
     <div className="p-4 md:p-6 bg-gray-100 min-h-screen  ">
       {/* Searchbar */}
       <div
-        className={`flex-col md:flex w-full py-2 px-2 justify-center items-center sticky top-0 z-50 `}
+        className={`flex flex-col w-full py-2 px-2 justify-center items-center sticky top-0 z-50`}
       >
         <div className="flex bg-white shadow-md max-w-100 w-full rounded-xl md:absolute md:top-0 md:mt-2">
           <div
@@ -314,10 +311,7 @@ const HotelStore = () => {
           ) : (
             filteredHotels?.map((hotel, i) => (
               <div className="w-full" key={hotel._id || i}>
-                <div
-                  
-                  className="bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition"
-                >
+                <div className="bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition">
                   <div className="relative">
                     <img
                       src={hotel?.images[1]?.url}

@@ -19,7 +19,7 @@ const GoogleLoginButton = (prop) => {
           { withCredentials: true }
         );
 
-        console.log("User:", res.data.user);
+        // console.log("User:", res.data.user);
 
         dispatch(login({ userData: res.data.user })); // Assuming you have a login action in your Redux store
         navigate("/");

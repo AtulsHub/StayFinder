@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { TrendingUp, Calendar, IndianRupee, Eye, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-export const DashboardStats = ({ listings }) => {
+const  DashboardStats = ({ listings }) => {
   const totalListings = listings.length;
   const totalBookings = listings.reduce((sum, listing) => sum + listing.bookedSlots.length, 0);
   const totalRevenue = listings.reduce((sum, listing) => {
@@ -15,6 +16,8 @@ export const DashboardStats = ({ listings }) => {
   const recentListings = listings
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
+
+  const navigate = useNavigate()
 
   const stats = [
     {
@@ -132,12 +135,14 @@ export const DashboardStats = ({ listings }) => {
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors text-center">
+          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors text-center"
+          onClick={() => navigate('/owner/add-listing')}>
             <Eye className="h-8 w-8 text-gray-400 mx-auto mb-2" />
             <p className="text-sm font-medium text-gray-600">Add New Listing</p>
           </button>
           
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors text-center">
+          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors text-center"
+                    onClick={() => navigate('/owner/listings')}>
             <Calendar className="h-8 w-8 text-gray-400 mx-auto mb-2" />
             <p className="text-sm font-medium text-gray-600">Manage Bookings</p>
           </button>
@@ -151,3 +156,5 @@ export const DashboardStats = ({ listings }) => {
     </div>
   );
 };
+
+export default DashboardStats;

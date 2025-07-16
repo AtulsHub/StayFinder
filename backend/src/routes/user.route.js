@@ -2,18 +2,21 @@ import express from "express";
 import passport from "passport";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import "../config/passport.js";
+import { upload } from "../middlewares/multer.middleware.js";
 import {
   registerUser,
   loginUser,
   logoutUser,
+  editUser
 } from "../controllers/user.controller.js";
-import { User } from "../modals/user.modal.js";
 
 const router = express.Router();
 
-router.post("/register", registerUser);
+router.post("/register", upload.single("avatar"), registerUser);
 router.post("/login", loginUser);
 router.get("/logout", logoutUser);
+router.put("/:id", upload.single("avatar"), editUser);
+
 
 // router.get(
 //   "/google",

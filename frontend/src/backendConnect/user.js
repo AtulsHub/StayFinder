@@ -14,7 +14,7 @@ export class UserService {
         },
         { withCredentials: true }
       );
-      console.log(response);
+      // console.log(response);
 
       return response.data;
     } catch (err) {
@@ -71,6 +71,22 @@ export class UserService {
       throw new Error(err.response?.data?.message || err.message);
     }
   }
+
+ async updateUser(userId, updatedData) {
+  try {
+
+    const response = await axios.put(`${this.url}/${userId}`, updatedData, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || err.message);
+  }
+}
+
 }
 
 const userService = new UserService();

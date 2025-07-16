@@ -15,7 +15,6 @@ const PopularListing = () => {
   const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
   const userId = useSelector((state) => state.user?.userData?._id); // update based on your user slice
-  console.log("userId:", userId);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -26,7 +25,6 @@ const PopularListing = () => {
 
     try {
       const data = await wishlistService.getWishlist(userId);
-      console.log("Wishlist data:", data);
 
       // Case 1: data.listings = [id, id, id]
       setWishlist(data.listings || []);
@@ -53,23 +51,20 @@ const PopularListing = () => {
             2
           );
           result[place] = response.listings;
-          console.log("response", response.listings);
+          // console.log("response", response.listings);
         } catch (error) {
           console.log(`Error loading listings for ${place}:`, error);
           result[place] = [];
         }
       }
       setPopularHotels(result);
-      console.log(popularHotels);
       setIsLoading((prev) => !prev);
     };
 
     fetchAllListings();
   }, []);
-  console.log(popularHotels);
 
   const toggleWishlist = async (hotelId) => {
-    console.log("Toggle wishlist for hotelId:", hotelId);
 
     try {
       const isWishlisted = wishlist.some((hotel) => hotel._id === hotelId);

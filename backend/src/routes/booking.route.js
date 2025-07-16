@@ -1,19 +1,30 @@
 import express from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
-  createBooking,
+  createBookingAndOrder,
+  verifyPayment,
   getAllBookings,
   getBookingById,
-  getBookingsByUser,
-  deleteBooking
+  deleteBooking,
+  getBookingsByUser
 } from "../controllers/booking.controller.js";
 
 const router = express.Router();
+// Create Booking + Razorpay Order
+router.post("/create-booking", createBookingAndOrder);
 
-router.post("/",verifyJWT, createBooking);
-router.get("/",verifyJWT, getAllBookings);
-router.get("/:id",verifyJWT, getBookingById);
-router.get("/user/:userId",verifyJWT, getBookingsByUser);
-router.delete("/:id",verifyJWT, deleteBooking);
+// Verify Payment
+router.post("/verify-payment", verifyPayment);
 
+// Get All Bookings (admin)
+router.get("/", getAllBookings);
+
+// Get Single Booking by ID
+router.get("/:id", getBookingById);
+
+//Get Bookings by User
+router.get("/user/:userId", getBookingsByUser);
+
+// Delete/Cancel Booking
+router.delete("/:id", deleteBooking);
 export default router;

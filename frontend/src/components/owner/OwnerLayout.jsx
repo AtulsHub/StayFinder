@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import CustomSidebar from './OwnerSidebar';
 import { Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const OwnerLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const selector = useSelector((state) => state.user?.userData?.name)
 
   const handleToggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
@@ -24,7 +26,7 @@ const OwnerLayout = () => {
               <h1 className="text-2xl font-bold text-red-500">StayFinder Bussiness</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">Welcome, Admin</div>
+              <div className="text-sm text-gray-600">Welcome, <span className='font-semibold text-lg ml-2 '>{selector}</span></div>
             </div>
           </div>
         </header>

@@ -20,12 +20,14 @@ passport.use(
         if (!user) {
           // fallback: maybe user was created via form signup
           user = await User.findOne({ email: profile.emails?.[0]?.value });
+          console.log("Google profile:", profile);
 
           if (!user) {
             user = await User.create({
               googleId: profile.id,
               email: profile.emails?.[0]?.value,
               name: profile.displayName,
+              avatar: profile._json.picture,
             });
           }
         }

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Plus, BarChart3, Home, Settings, List } from 'lucide-react';
-import { AddListingForm } from './AddListingForm';
-import { ListingsList } from './ListingsList';
-import { DashboardStats } from './DashboardStats';
-import { EditListingForm } from './EditListingForm';
+import AddListingForm from './AddListingForm';
+import ListingsList from './ListingsList';
+import DashboardStats from './DashboardStats';
+import EditListingForm  from './EditListingForm';
 
-export const BusinessDashboard = () => {
+const BusinessDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [listings, setListings] = useState([]);
   const [editingListing, setEditingListing] = useState(null);
@@ -85,28 +85,6 @@ export const BusinessDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-8">
-          {/* Sidebar */}
-          {/* <div className="w-64 bg-white rounded-lg shadow-sm p-6 h-fit">
-            <nav className="space-y-2">
-              {sidebarItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                      activeTab === item.id
-                        ? 'bg-red-50 text-red-600 border border-red-200'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-          </div> */}
           
 
           {/* Main Content */}
@@ -116,3 +94,5 @@ export const BusinessDashboard = () => {
     </div>
   );
 };
+
+export default BusinessDashboard;

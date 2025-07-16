@@ -1,22 +1,33 @@
 import React from "react";
-import {
-  Home,
-  Building2,
-  Settings,
-  Menu,
-  X,
-  Plus,
-} from "lucide-react";
+import { Home, Building2, Settings, Menu, X, Plus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const OwnerSidebar = ({ isCollapsed, onToggleCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const selector = useSelector((state) => state.user?.userData);
 
   const navigationItems = [
-    { id: "dashboard", label: "Dashboard", icon: Home, path: "/owner/dashboard" },
-    { id: "listings", label: "My Listings", icon: Building2, path: "/owner/listings" },
-    { id: "add-listing", label: "Add Listing", icon: Plus, path: "/owner/add-listing" },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: Home,
+      path: "/owner/dashboard",
+    },
+    {
+      id: "listings",
+      label: "My Listings",
+      icon: Building2,
+      path: "/owner/listings",
+    },
+    {
+      id: "add-listing",
+      label: "Add Listing",
+      icon: Plus,
+      path: "/owner/add-listing",
+    },
+    // { id: "booking", label: "View Bookings", icon: Plus, path: "/owner/booking" },
     // { id: "settings", label: "Settings", icon: Settings, path: "/owner/settings" },
   ];
 
@@ -66,9 +77,7 @@ const OwnerSidebar = ({ isCollapsed, onToggleCollapse }) => {
             `}
           >
             <Icon className="h-5 w-5 flex-shrink-0" />
-            {!isCollapsed && (
-              <span className="ml-3 truncate">{label}</span>
-            )}
+            {!isCollapsed && <span className="ml-3 truncate">{label}</span>}
           </button>
         ))}
       </nav>
@@ -80,17 +89,22 @@ const OwnerSidebar = ({ isCollapsed, onToggleCollapse }) => {
             isCollapsed ? "justify-center" : "space-x-3"
           }`}
         >
-          <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-            O
-          </div>
+          {selector.avatar ? (
+            <img
+              src={selector.avatar}
+              className="w-8 h-8 object-cover rounded-full"
+            />
+          ) : (
+            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+              {selector.name.charAt(0)}
+            </div>
+          )}
           {!isCollapsed && (
             <div className="min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
-                Property Owner
+                {selector.name}
               </p>
-              <p className="text-xs text-gray-500 truncate">
-                owner@stayfinder.com
-              </p>
+              <p className="text-xs text-gray-500 truncate">{selector.email}</p>
             </div>
           )}
         </div>

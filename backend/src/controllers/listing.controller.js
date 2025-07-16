@@ -1,7 +1,6 @@
 import { Listing } from "../modals/listing.modal.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
-
 const getAllItems = async (req, res) => {
   try {
     const { page = 1, perPage = 10 } = req.query;
@@ -123,13 +122,7 @@ const createListing = async (req, res) => {
       host,
       availableDates,
     } = req.body;
- console.log( title,
-      description,
-      location,
-      pricePerNight,
-      host,
-      availableDates,);
- 
+
     if (!title || !location || !pricePerNight || !host) {
       return res
         .status(400)
@@ -232,6 +225,29 @@ const deleteListing = async (req, res) => {
   }
 };
 
+// GET /api/v1/listing/user/:userId
+const getListingsByUserId = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const listings = await Listing.find({ host: userId }).sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json({
+      success: true,
+      count: listings.length,
+      data: listings,
+    });
+  } catch (err) {
+    console.error("Error fetching listings by userId:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch listings for user",
+    });
+  }
+};
+
 export {
   getAllItems,
   getById,
@@ -239,4 +255,5 @@ export {
   createListing,
   deleteListing,
   updateListing,
+  getListingsByUserId,
 };

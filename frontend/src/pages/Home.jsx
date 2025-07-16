@@ -22,7 +22,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PopularListing from "../components/PopularListing";
 import { useNavigate } from "react-router-dom";
-import CustomDateInput from "../components/CustomDateInput";
+import CustomDateInput from "../components/utils/CustomDateInput";
 
 
 const facilities = [

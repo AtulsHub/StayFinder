@@ -10,12 +10,7 @@ import {
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-interface AdminSidebarProps {
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
-}
-
-const AdminSidebar = ({ isCollapsed, onToggleCollapse }: AdminSidebarProps) => {
+const AdminSidebar = ({ isCollapsed, onToggleCollapse }) => {
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/admin/dashboard' },
     { id: 'listings', label: 'Listings', icon: Home, path: '/admin/listings' },
@@ -28,7 +23,7 @@ const AdminSidebar = ({ isCollapsed, onToggleCollapse }: AdminSidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path) => location.pathname === path;
 
   return (
     <div className={`bg-white border-r border-gray-200 transition-all duration-500 ease-in-out ${isCollapsed ? 'w-16' : 'w-64'} sticky top-0 h-screen`}>

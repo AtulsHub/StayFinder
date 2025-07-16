@@ -14,7 +14,6 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  console.log(import.meta.env.VITE_GOOGLE_REDIRECT_URI);
 
   const showPopup = (message, type) => {
     setNotification({ message: message, type: "info" });
@@ -24,13 +23,13 @@ const SignupPage = () => {
   const signUp = async (name, email, password) => {
     try {
       const response = await userService.registerUser(name, email, password);
-      console.log(response.message);
-      showPopup(response.message, "info");
+      // console.log(response.message);
+      showPopup(response.message, "success");
       if (response.user) dispatch(login({ userData: response.user }));
       setTimeout(() => navigate("/"), 2000);
     } catch (error) {
       showPopup(error.message, "error");
-      console.log("login error", error);
+      // console.log("login error", error);
     }
   };
 
@@ -43,7 +42,7 @@ const SignupPage = () => {
     const confirmPassword = formData.get("confirmPassword");
 
     if (password !== confirmPassword) {
-      showPopup("Passwords do not match!");
+      showPopup("Passwords do not match!", 'error');
       return;
     }
 

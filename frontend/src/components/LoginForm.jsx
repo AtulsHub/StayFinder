@@ -15,15 +15,15 @@ const LoginPage = () => {
   const selector = useSelector((state) => state.user.status);
 
   const showPopup = (message, type) => {
-    setNotification({ message: message, type: "info" });
+    setNotification({ message: message, type });
     // auto-close after 3s
   };
 
   const logIn = async (email, password) => {
     try {
       const response = await userService.loginUser(email, password);
-      console.log(response.message);
-      showPopup(response.message, 'info');
+      // console.log(response.message);
+      showPopup(response.message, 'success');
       if (response.user) dispatch(login({ userData: response.user }));
       setTimeout(() => navigate("/"), 2000);
     } catch (error) {
