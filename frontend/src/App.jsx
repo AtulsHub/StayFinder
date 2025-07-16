@@ -17,6 +17,7 @@ import Loader from "./pages/Loader.jsx";
 
 // Admin section (lazy-loaded ✅)
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
+const AdminDashboard = lazy(() => import("./components/admin/Dashboard"));
 const ListingsManagement = lazy(() => import("./components/admin/ListingsManagement"));
 const BookingsManagement = lazy(() => import("./components/admin/BookingsManagement"));
 const UserManagement = lazy(() => import("./components/admin/UserManagement"));
