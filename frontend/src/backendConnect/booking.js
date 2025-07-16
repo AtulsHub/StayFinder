@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export class BookingService {
-  url = "http://localhost:8000/api/v1/bookings";
+  url = `${import.meta.env.VITE_BACKEND_URI}/bookings`;
 
   // create booking
   async createBooking({ user, listing, checkIn, checkOut, totalPrice, bookerEmail }) {

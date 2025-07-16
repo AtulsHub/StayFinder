@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export class ListingService {
-  url = "http://localhost:8000/api/v1/listing";
+  url = `${import.meta.env.VITE_BACKEND_URI}/listing`;
 
   async getAllItems(page, perPage) {
     try {

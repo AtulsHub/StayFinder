@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export class WishlistService {
-  url = "http://localhost:8000/api/v1/wishlist";
+  url = `${import.meta.env.VITE_BACKEND_URI}/wishlist`;
 
   async addToWishlist(userId, listingId) {
     try {

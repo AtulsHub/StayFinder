@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export class UserService {
-  url = "http://localhost:8000/api/v1/users";
+  url = `${import.meta.env.VITE_BACKEND_URI}/users`;
 
   async registerUser(name, email, password) {
     try {
