@@ -16,7 +16,7 @@ const ConnectBusiness = () => {
 
       if (res?.user) {
         dispatch(login({ userData: res.user }));
-        navigate("/owner");
+        navigate("/owner/dashboard");
       } else {
         alert("Failed to connect your business");
       }

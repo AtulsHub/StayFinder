@@ -10,6 +10,7 @@ import { styled } from "@mui/material/styles";
 import DateInput from "./utils/DateInput";
 import bookingService from "../backendConnect/booking";
 import { useSelector } from "react-redux";
+import NotificationPopup from "./utils/NotificationBar";
 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrAfter);
@@ -51,6 +52,7 @@ const BookingCalendar = ({ hotel, hideInput }, ref) => {
   const [checkOut, setCheckOut] = useState(null);
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   const isBooked = (date) =>
     hotel?.bookedSlots?.some((slot) =>
@@ -136,7 +138,10 @@ const BookingCalendar = ({ hotel, hideInput }, ref) => {
           setCheckOut(null);
           setVerifying(false);
 
-          alert("Payment successful! Your booking is confirmed.");
+          setNotification({
+            message: "Payment successful! Your booking is confirmed.",
+            type: "success",
+          });
         },
         prefill: {
           name: user.name,
@@ -154,8 +159,11 @@ const BookingCalendar = ({ hotel, hideInput }, ref) => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      console.error(err);
-      alert(err.message || "Something went wrong");
+      // console.error(err);
+      setNotification({
+        message: err.message || "Something went wrong",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -168,6 +176,13 @@ const BookingCalendar = ({ hotel, hideInput }, ref) => {
         hideInput ? "max-w-3/4" : "max-w-full border rounded-xl shadow"
       } mx-auto grid md:grid-cols-2 gap-6 p-4 mt-10`}
     >
+      {notification && (
+        <NotificationPopup
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DateCalendar
           monthsPerRow={2}

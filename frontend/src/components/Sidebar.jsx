@@ -55,13 +55,19 @@ const Sidebar = () => {
         // console.log(res);
 
         dispatch(login({ userData: res.user }));
-        setNotification({message:"Profile picture updated!", type:'info'});
+        setNotification({ message: "Profile picture updated!", type: "info" });
       } else {
-        setNotification({message:"Failed to update profile picture", type: 'info'});
+        setNotification({
+          message: "Failed to update profile picture",
+          type: "info",
+        });
       }
     } catch (err) {
       console.error(err);
-      setNotification({message:"Something went wrong while uploading", type:'error'});
+      setNotification({
+        message: "Something went wrong while uploading",
+        type: "error",
+      });
     } finally {
       setUploading(false);
     }
@@ -141,7 +147,8 @@ const Sidebar = () => {
             {selector && (
               <SidebarLink
                 to={
-                  hostType?.hostType === "admin" || hostType?.hostType === "owner"
+                  hostType?.hostType === "admin" ||
+                  hostType?.hostType === "owner"
                     ? "/owner"
                     : "/register-business"
                 }

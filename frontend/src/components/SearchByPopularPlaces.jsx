@@ -9,8 +9,7 @@ const SearchByPopularPlaces = () => {
   const [hotelsByPlace, setHotelsByPlace] = useState({});
   const places = ["Goa", "Manali", "Mumbai", "Jaipur", "Kerala"];
   const navigate = useNavigate();
-   const [isLoading, setIsLoading ] = useState(false)
-
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchAllListings = async () => {
@@ -112,8 +111,11 @@ const SearchByPopularPlaces = () => {
                         className="h-40 w-full object-cover rounded-t-xl"
                       /> */}
                       <div className="relative">
-                        <img src={hotel.images[0].url} alt={hotel.title} 
-                        onClick={() => navigate(`/listing/${hotel._id}`)}/>
+                        <img
+                          src={hotel.images[0].url}
+                          alt={hotel.title}
+                          onClick={() => navigate(`/listing/${hotel._id}`)}
+                        />
                         <WishlistIcon hotel={hotel} />
                       </div>
 
@@ -128,8 +130,10 @@ const SearchByPopularPlaces = () => {
                           ₹ {hotel.pricePerNight}/night
                         </p>
 
-                        <button className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg"
-                        onClick={() => navigate(`/listing/${hotel._id}`)}>
+                        <button
+                          className="w-full h-auto py-1 mt-1 cursor-pointer bg-red-500 hover:bg-red-600 rounded-xl text-white text-lg"
+                          onClick={() => navigate(`/listing/${hotel._id}`)}
+                        >
                           Book now
                         </button>
                       </div>

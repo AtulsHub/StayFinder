@@ -24,7 +24,10 @@ const WishlistIcon = ({ hotel }) => {
 
   const toggleWishlist = async () => {
     if (!userId) {
-      setNotification({ message: "Please login to add to wishlist.", type: "info" });
+      setNotification({
+        message: "Please login to add to wishlist.",
+        type: "info",
+      });
       return;
     }
 

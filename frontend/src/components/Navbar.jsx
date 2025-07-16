@@ -16,8 +16,7 @@ const Navbar = () => {
   const menuRef = useRef();
   const fileInputRef = useRef();
   const [uploading, setUploading] = useState(false);
-    const [notification, setNotification] = useState(null);
-  
+  const [notification, setNotification] = useState(null);
 
   const handleLogout = async () => {
     const response = await userService.performLogout();
@@ -53,15 +52,21 @@ const Navbar = () => {
 
       if (res?.user) {
         console.log(res);
-        
+
         dispatch(login({ userData: res.user }));
-        setNotification({message: "Profile picture updated!",type: 'info'});
+        setNotification({ message: "Profile picture updated!", type: "info" });
       } else {
-        setNotification({message: "Failed to update profile picture", type:'info' });
+        setNotification({
+          message: "Failed to update profile picture",
+          type: "info",
+        });
       }
     } catch (err) {
       console.error(err);
-      setNotification({message:"Something went wrong while uploading", type:'error'});
+      setNotification({
+        message: "Something went wrong while uploading",
+        type: "error",
+      });
     } finally {
       setUploading(false);
     }
@@ -69,7 +74,7 @@ const Navbar = () => {
 
   return (
     <>
-    {notification && (
+      {notification && (
         <NotificationPopup
           message={notification.message}
           type={notification.type}

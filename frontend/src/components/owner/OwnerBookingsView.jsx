@@ -42,11 +42,17 @@ const OwnerBookingsView = () => {
   }, [listingId]);
 
   if (loading) {
-    return <div className="text-center py-8 text-gray-600">Loading bookings…</div>;
+    return (
+      <div className="text-center py-8 text-gray-600">Loading bookings…</div>
+    );
   }
 
   if (error || !listing) {
-    return <div className="text-center py-8 text-red-600">{error || "Listing not found"}</div>;
+    return (
+      <div className="text-center py-8 text-red-600">
+        {error || "Listing not found"}
+      </div>
+    );
   }
 
   const bookings = listing.bookings || [];
@@ -55,7 +61,7 @@ const OwnerBookingsView = () => {
   const upcomingBookings = bookings.filter((b) => !isPast(b.endDate));
 
   // map your bookings into the format BookingCalendar expects
-  const bookedSlots = bookings.map(b => ({
+  const bookedSlots = bookings.map((b) => ({
     startDateTime: b.startDate,
     endDateTime: b.endDate,
   }));
@@ -119,7 +125,7 @@ const OwnerBookingsView = () => {
 
       {/* Right: Booking Calendar */}
       <div>
-        <BookingCalendar hotel={{ bookedSlots }} hideInput='true' />
+        <BookingCalendar hotel={{ bookedSlots }} hideInput="true" />
       </div>
     </div>
   );

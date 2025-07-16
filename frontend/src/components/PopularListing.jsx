@@ -22,7 +22,6 @@ const PopularListing = () => {
   }, [userId]);
 
   const fetchWishlist = async () => {
-
     try {
       const data = await wishlistService.getWishlist(userId);
 
@@ -38,7 +37,7 @@ const PopularListing = () => {
 
   useEffect(() => {
     const fetchAllListings = async () => {
-          setIsLoading((prev) => !prev);
+      setIsLoading((prev) => !prev);
 
       const result = {};
       for (const place of places) {
@@ -65,7 +64,6 @@ const PopularListing = () => {
   }, []);
 
   const toggleWishlist = async (hotelId) => {
-
     try {
       const isWishlisted = wishlist.some((hotel) => hotel._id === hotelId);
 

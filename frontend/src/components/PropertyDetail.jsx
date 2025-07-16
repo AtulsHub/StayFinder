@@ -41,10 +41,11 @@ const HotelProductPage = () => {
   const menuRef = useRef();
   const fileInputRef = useRef();
   const [uploading, setUploading] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   const handleLogout = async () => {
     const response = await userService.performLogout();
-    dispatch(logout()); 
+    dispatch(logout());
     navigate("/");
   };
 
@@ -61,14 +62,19 @@ const HotelProductPage = () => {
       const res = await userService.updateUser(user._id, formData);
 
       if (res?.user) {
-
         dispatch(login({ userData: res.user }));
-        setNotification({message:"Profile picture updated!", type: 'info'});
+        setNotification({ message: "Profile picture updated!", type: "info" });
       } else {
-        setNotification({message:"Failed to update profile picture", type:'info'});
+        setNotification({
+          message: "Failed to update profile picture",
+          type: "info",
+        });
       }
     } catch (err) {
-      setNotification({message:"Something went wrong while uploading", type:'info'});
+      setNotification({
+        message: "Something went wrong while uploading",
+        type: "info",
+      });
     } finally {
       setUploading(false);
     }
@@ -144,7 +150,7 @@ const HotelProductPage = () => {
 
   return (
     <>
-    {notification && (
+      {notification && (
         <NotificationPopup
           message={notification.message}
           type={notification.type}

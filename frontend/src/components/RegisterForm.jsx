@@ -42,7 +42,7 @@ const SignupPage = () => {
     const confirmPassword = formData.get("confirmPassword");
 
     if (password !== confirmPassword) {
-      showPopup("Passwords do not match!", 'error');
+      showPopup("Passwords do not match!", "error");
       return;
     }
 
