@@ -111,35 +111,37 @@ const Sidebar = () => {
         {/* wrapped nav inside scrollable container */}
         <div className="flex-1 overflow-y-auto scrollbar-hidden">
           <nav className="flex flex-col gap-4 p-4">
-            <div className="px-4 py-3 border-b flex flex-col items-center gap-2">
-              <div className="relative">
-                <img
-                  src={hostType?.avatar || "/default-avatar.png"}
-                  alt={hostType?.name || "User"}
-                  className="h-24 w-24 rounded-full shadow-lg object-contain bg-gradient-to-r from-red-400 to-purple-400"
-                />
-                <FaEdit
-                  className="h-5 w-5 absolute bottom-2 right-2 text-red-500 cursor-pointer bg-white rounded-full p-1"
-                  onClick={() => fileInputRef.current.click()}
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                {uploading && (
-                  <span className="absolute inset-0 flex items-center justify-center text-xs bg-black/50 text-white rounded-full animate-pulse">
-                    Uploading…
-                  </span>
-                )}
+            {selector && (
+              <div className="px-4 py-3 border-b flex flex-col items-center gap-2">
+                <div className="relative">
+                  <img
+                    src={hostType?.avatar}
+                    alt={hostType?.name || "User"}
+                    className="h-24 w-24 rounded-full shadow-lg object-contain bg-gradient-to-r from-red-400 to-purple-400"
+                  />
+                  <FaEdit
+                    className="h-5 w-5 absolute bottom-2 right-2 text-red-500 cursor-pointer bg-white rounded-full p-1"
+                    onClick={() => fileInputRef.current.click()}
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  {uploading && (
+                    <span className="absolute inset-0 flex items-center justify-center text-xs bg-black/50 text-white rounded-full animate-pulse">
+                      Uploading…
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm">Signed in as</p>
+                <p className="text-sm font-medium truncate">
+                  {hostType?.email || "User"}
+                </p>
               </div>
-              <p className="text-sm">Signed in as</p>
-              <p className="text-sm font-medium truncate">
-                {hostType?.email || "User"}
-              </p>
-            </div>
+            )}
             <SidebarLink to="/" icon={<FaHome />} label="Home" />
             <SidebarLink to="/store" icon={<FaBed />} label="Explore Hotels" />
             <SidebarLink to="#" icon={<FaBook />} label="Bookings" />

@@ -5,7 +5,7 @@ import { User } from "../modals/user.modal.js";
 
 const GoogleTokenStrategy = pkg.Strategy;
 dotenv.config();
-console.log(process.env.GOOGLE_REDIRECT_URI);
+// console.log(process.env.GOOGLE_REDIRECT_URI);
 
 passport.use(
   new GoogleTokenStrategy(

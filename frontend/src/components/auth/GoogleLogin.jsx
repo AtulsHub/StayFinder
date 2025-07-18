@@ -12,7 +12,7 @@ const GoogleLoginButton = (prop) => {
     onSuccess: async (tokenResponse) => {
       try {
         const res = await axios.post(
-          "http://localhost:8000/api/v1/users/google",
+          `${import.meta.env.VITE_BACKEND_URI}`,    // "http://localhost:8000/api/v1/users/google",
           {
             access_token: tokenResponse.access_token, // ✅ real access token
           },
