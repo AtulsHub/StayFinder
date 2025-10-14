@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import listingService from "../../backendConnect/listing.js";
+import bookingService from "../../backendConnect/booking.js";
 import BookingCalendar from "../BookingSection.jsx";
 
 const isPast = (endDate) => {
@@ -19,26 +20,32 @@ const OwnerBookingsView = () => {
   const { listingId } = useParams();
   const [loading, setLoading] = useState(true);
   const [listing, setListing] = useState(null);
+  const [bookings, setBookings] = useState([]);
   const [error, setError] = useState("");
   const [selectedBooking, setSelectedBooking] = useState(null);
 
   useEffect(() => {
-    const fetchListing = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setError("");
       try {
-        const res = await listingService.getListingById(listingId);
-        setListing(res.item);
-        // console.log(res.item);
+        // Fetch listing details
+        const listingRes = await listingService.getListingById(listingId);
+        setListing(listingRes.item);
+        
+        // Fetch bookings for this listing
+        const bookingsRes = await bookingService.getBookingsByListing(listingId);
+        setBookings(bookingsRes.bookings || []);
+        console.log("Bookings:", bookingsRes.bookings);
       } catch (err) {
-        // console.log(err);
-        setError("Failed to fetch listing.");
+        console.error(err);
+        setError("Failed to fetch data.");
       } finally {
         setLoading(false);
       }
     };
 
-    if (listingId) fetchListing();
+    if (listingId) fetchData();
   }, [listingId]);
 
   if (loading) {
@@ -55,15 +62,13 @@ const OwnerBookingsView = () => {
     );
   }
 
-  const bookings = listing.bookings || [];
-
-  const pastBookings = bookings.filter((b) => isPast(b.endDate));
-  const upcomingBookings = bookings.filter((b) => !isPast(b.endDate));
+  const pastBookings = bookings.filter((b) => isPast(b.checkOut));
+  const upcomingBookings = bookings.filter((b) => !isPast(b.checkOut));
 
   // map your bookings into the format BookingCalendar expects
   const bookedSlots = bookings.map((b) => ({
-    startDateTime: b.startDate,
-    endDateTime: b.endDate,
+    startDateTime: b.checkIn,
+    endDateTime: b.checkOut,
   }));
 
   return (
@@ -80,14 +85,17 @@ const OwnerBookingsView = () => {
             {upcomingBookings.length > 0 ? (
               upcomingBookings.map((b) => (
                 <div
-                  key={b.id}
+                  key={b._id}
                   onClick={() => setSelectedBooking(b)}
                   className="p-2 rounded cursor-pointer hover:bg-gray-100 flex justify-between"
                 >
                   <div>
-                    <div className="font-medium">{b.user}</div>
+                    <div className="font-medium">{b.user?.name || b.user?.email || "Guest"}</div>
                     <div className="text-sm text-gray-500">
-                      {formatDate(b.startDate)} → {formatDate(b.endDate)}
+                      {formatDate(b.checkIn)} → {formatDate(b.checkOut)}
+                    </div>
+                    <div className="text-xs text-green-600 font-medium">
+                      ₹{b.totalPrice?.toLocaleString()}
                     </div>
                   </div>
                 </div>
@@ -104,14 +112,17 @@ const OwnerBookingsView = () => {
             {pastBookings.length > 0 ? (
               pastBookings.map((b) => (
                 <div
-                  key={b.id}
+                  key={b._id}
                   onClick={() => setSelectedBooking(b)}
                   className="p-2 rounded cursor-pointer hover:bg-gray-100 flex justify-between"
                 >
                   <div>
-                    <div className="font-medium">{b.user}</div>
+                    <div className="font-medium">{b.user?.name || b.user?.email || "Guest"}</div>
                     <div className="text-sm text-gray-500">
-                      {formatDate(b.startDate)} → {formatDate(b.endDate)}
+                      {formatDate(b.checkIn)} → {formatDate(b.checkOut)}
+                    </div>
+                    <div className="text-xs text-green-600 font-medium">
+                      ₹{b.totalPrice?.toLocaleString()}
                     </div>
                   </div>
                 </div>

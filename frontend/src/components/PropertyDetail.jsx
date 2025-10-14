@@ -260,7 +260,7 @@ const HotelProductPage = () => {
                       <Link
                         to={
                           user?.hostType === "admin" ||
-                          user?.hostType === "owner"
+                            user?.hostType === "owner"
                             ? "/owner"
                             : "/register-business"
                         }
@@ -268,6 +268,20 @@ const HotelProductPage = () => {
                         <label className="block w-full text-center px-4 py-2 border-b text-red-600 hover:bg-red-100 hover:text-red-700 transition">
                           {" "}
                           Your Business
+                        </label>
+                      </Link>
+                    )}
+                    {selector && (
+                      <Link
+                        to={
+                          user?.hostType === "admin" || user?.hostType === "owner"
+                            ? "/admin"
+                            : ""
+                        }
+                      >
+                        <label className="block w-full text-center px-4 py-2 border-b text-red-600 hover:bg-red-100 hover:text-red-700 transition">
+                          {" "}
+                          Admin Dashboard
                         </label>
                       </Link>
                     )}

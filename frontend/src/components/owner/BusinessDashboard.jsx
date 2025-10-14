@@ -1,14 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, BarChart3, Home, Settings, List } from 'lucide-react';
+import { useSelector } from 'react-redux';
 import AddListingForm from './AddListingForm';
 import ListingsList from './ListingsList';
 import DashboardStats from './DashboardStats';
 import EditListingForm  from './EditListingForm';
+import listingService from '../../backendConnect/listing';
 
 const BusinessDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [listings, setListings] = useState([]);
   const [editingListing, setEditingListing] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const userId = useSelector((state) => state.user?.userData?._id);
+
+  // Fetch listings from backend
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchListings = async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        const res = await listingService.getListingsByUserId(userId);
+        setListings(res.data || []);
+      } catch (err) {
+        console.error('Failed to fetch listings:', err);
+        setError('Failed to fetch listings.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, [userId]);
 
   const sidebarItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -17,32 +45,60 @@ const BusinessDashboard = () => {
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  const handleAddListing = (newListing) => {
-    const listing = {
-      ...newListing,
-      _id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    setListings([...listings, listing]);
-    setActiveTab('listings');
+  const handleAddListing = async (newListing) => {
+    try {
+      await listingService.addListing(newListing);
+      // Refresh listings after adding
+      const res = await listingService.getListingsByUserId(userId);
+      setListings(res.data || []);
+      setActiveTab('listings');
+    } catch (err) {
+      console.error('Failed to add listing:', err);
+      alert('Failed to add listing.');
+    }
   };
 
-  const handleEditListing = (updatedListing) => {
-    setListings(
-      listings.map((listing) =>
-        listing._id === updatedListing._id ? updatedListing : listing
-      )
-    );
-    setEditingListing(null);
-    setActiveTab('listings');
+  const handleEditListing = async (updatedListing) => {
+    try {
+      await listingService.updateListing(updatedListing._id, updatedListing);
+      // Refresh listings after editing
+      const res = await listingService.getListingsByUserId(userId);
+      setListings(res.data || []);
+      setEditingListing(null);
+      setActiveTab('listings');
+    } catch (err) {
+      console.error('Failed to update listing:', err);
+      alert('Failed to update listing.');
+    }
   };
 
-  const handleDeleteListing = (listingId) => {
-    setListings(listings.filter((listing) => listing._id !== listingId));
+  const handleDeleteListing = async (listingId) => {
+    try {
+      await listingService.deleteListing(listingId);
+      setListings(listings.filter((listing) => listing._id !== listingId));
+    } catch (err) {
+      console.error('Failed to delete listing:', err);
+      alert('Failed to delete listing.');
+    }
   };
 
   const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="text-center py-8 text-gray-600">
+          Loading dashboard data...
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="text-center py-8 text-red-600">
+          {error}
+        </div>
+      );
+    }
+
     if (editingListing) {
       return (
         <EditListingForm

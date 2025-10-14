@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Building2, Settings, Menu, X, Plus } from "lucide-react";
+import { Home, Building2, Settings, Menu, X, Plus, BarChart3 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -27,7 +27,12 @@ const OwnerSidebar = ({ isCollapsed, onToggleCollapse }) => {
       icon: Plus,
       path: "/owner/add-listing",
     },
-    // { id: "booking", label: "View Bookings", icon: Plus, path: "/owner/booking" },
+    {
+      id: "analytics",
+      label: "Analytics",
+      icon: BarChart3,
+      path: "/owner/analytics",
+    },
     // { id: "settings", label: "Settings", icon: Settings, path: "/owner/settings" },
   ];
 

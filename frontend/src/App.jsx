@@ -30,6 +30,7 @@ import BusinessDashboard from "./components/owner/BusinessDashboard";
 import ListingsList from "./components/owner/ListingsList";
 import AddListingForm from "./components/owner/AddListingForm";
 import OwnerBookingsView from "./components/owner/OwnerBookingsView";
+import OwnerAnalytics from "./components/owner/OwnerAnalytics";
 
 const App = () => {
   return (
@@ -61,6 +62,7 @@ const App = () => {
             <Route path="listings" element={<ListingsList />} />
             <Route path="add-listing" element={<AddListingForm />} />
             <Route path="booking/:listingId" element={<OwnerBookingsView />} />
+            <Route path="analytics" element={<OwnerAnalytics />} />
           </Route>
         </Routes>
       </Suspense>

@@ -6,7 +6,8 @@ import {
   getAllBookings,
   getBookingById,
   deleteBooking,
-  getBookingsByUser
+  getBookingsByUser,
+  getBookingsByListing
 } from "../controllers/booking.controller.js";
 
 const router = express.Router();
@@ -24,6 +25,9 @@ router.get("/:id", getBookingById);
 
 //Get Bookings by User
 router.get("/user/:userId", getBookingsByUser);
+
+//Get Bookings by Listing
+router.get("/listing/:listingId", getBookingsByListing);
 
 // Delete/Cancel Booking
 router.delete("/:id", deleteBooking);

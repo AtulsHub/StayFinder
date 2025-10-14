@@ -227,7 +227,22 @@ export const getBookingsByUser = async (req, res) => {
   }
 };
 
-// 6️⃣ Delete booking
+// 6️⃣ Get bookings by listing
+export const getBookingsByListing = async (req, res) => {
+  try {
+    const { listingId } = req.params;
+    const bookings = await Booking.find({ listing: listingId, status: "CONFIRMED" })
+      .populate("user", "name email")
+      .populate("listing", "title")
+      .sort({ checkIn: 1 });
+    res.status(200).json({ success: true, bookings });
+  } catch (error) {
+    console.error("Error fetching bookings by listing:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// 7️⃣ Delete booking
 export const deleteBooking = async (req, res) => {
   try {
     const { id } = req.params;

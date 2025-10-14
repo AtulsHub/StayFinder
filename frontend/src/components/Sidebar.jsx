@@ -158,9 +158,21 @@ const Sidebar = () => {
                 label="Your Business"
               />
             )}
+            {selector && (
+              <SidebarLink
+                to={
+                  hostType?.hostType === "admin" 
+                    ? "/admin"
+                    : ""
+                }
+                icon={<FaBusinessTime />}
+                label="Admin Dashboard"
+              />
+            )}
+
 
             <div
-              className="flex items-center gap-4 p-2 hover:bg-red-600 cursor-pointer rounded transition"
+              className="flex items-center gap-4 p-2 hover:bg-red-600 cursor-pointer rounded transition text-lg"
               onClick={() => {
                 selector
                   ? handleLogout()

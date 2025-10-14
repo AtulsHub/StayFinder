@@ -50,6 +50,16 @@ export class BookingService {
     }
   }
 
+  // get bookings by listing
+  async getBookingsByListing(listingId) {
+    try {
+      const { data } = await axios.get(`${this.url}/listing/${listingId}`);
+      return data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || err.message);
+    }
+  }
+
   // delete booking by ID
   async deleteBookingById(bookingId) {
     try {

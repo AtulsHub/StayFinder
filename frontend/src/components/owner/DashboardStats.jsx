@@ -5,12 +5,16 @@ import { useNavigate } from 'react-router-dom';
 
 const  DashboardStats = ({ listings }) => {
   const totalListings = listings.length;
-  const totalBookings = listings.reduce((sum, listing) => sum + listing.bookedSlots.length, 0);
+  const totalBookings = listings.reduce((sum, listing) => {
+    const bookedSlots = listing.bookedSlots || [];
+    return sum + bookedSlots.length;
+  }, 0);
   const totalRevenue = listings.reduce((sum, listing) => {
-    return sum + (listing.bookedSlots.length * listing.pricePerNight);
+    const bookedSlots = listing.bookedSlots || [];
+    return sum + (bookedSlots.length * (listing.pricePerNight || 0));
   }, 0);
   const averagePrice = listings.length > 0 
-    ? listings.reduce((sum, listing) => sum + listing.pricePerNight, 0) / listings.length 
+    ? listings.reduce((sum, listing) => sum + (listing.pricePerNight || 0), 0) / listings.length 
     : 0;
 
   const recentListings = listings
@@ -118,11 +122,11 @@ const  DashboardStats = ({ listings }) => {
                 
                 <div className="text-center">
                   <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                    listing.bookedSlots.length > 0
+                    (listing.bookedSlots && listing.bookedSlots.length > 0)
                       ? 'bg-green-100 text-green-800'
                       : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {listing.bookedSlots.length > 0 ? 'Booked' : 'Available'}
+                    {(listing.bookedSlots && listing.bookedSlots.length > 0) ? 'Booked' : 'Available'}
                   </span>
                 </div>
               </div>
@@ -147,7 +151,8 @@ const  DashboardStats = ({ listings }) => {
             <p className="text-sm font-medium text-gray-600">Manage Bookings</p>
           </button>
           
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors text-center">
+          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors text-center"
+                  onClick={() => navigate('/owner/analytics')}>
             <TrendingUp className="h-8 w-8 text-gray-400 mx-auto mb-2" />
             <p className="text-sm font-medium text-gray-600">View Analytics</p>
           </button>
