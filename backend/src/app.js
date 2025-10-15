@@ -7,18 +7,21 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "https://stayfinder-production-6a9f.up.railway.app",
+
 ];
 
 app.use(
   cors({
+    
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes(process.env.CORS_ORIGIN)) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
+    optionsSuccessStatus: 200,
   })
 );
 
