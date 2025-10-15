@@ -210,5 +210,106 @@ console.log(req.file);
   }
 };
 
+// Get all users (admin)
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find()
+      .select('-password -refreshToken')
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json({
+      message: "Users fetched successfully",
+      users,
+    });
+  } catch (err) {
+    console.error("Get all users error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
-export { registerUser, loginUser, logoutUser, editUser };
+// Update user status (admin)
+const updateUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['active', 'suspended'].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    ).select('-password -refreshToken');
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User status updated successfully",
+      user,
+    });
+  } catch (err) {
+    console.error("Update user status error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Promote user to admin (admin only)
+const promoteToAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { isAdmin: true },
+      { new: true }
+    ).select('-password -refreshToken');
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User promoted to admin successfully",
+      user,
+    });
+  } catch (err) {
+    console.error("Promote to admin error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Demote admin to regular user (admin only)
+const demoteFromAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent demoting yourself
+    if (req.user && req.user._id.toString() === id) {
+      return res.status(400).json({ message: "You cannot demote yourself" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { isAdmin: false },
+      { new: true }
+    ).select('-password -refreshToken');
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Admin privileges removed successfully",
+      user,
+    });
+  } catch (err) {
+    console.error("Demote from admin error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { registerUser, loginUser, logoutUser, editUser, getAllUsers, updateUserStatus, promoteToAdmin, demoteFromAdmin };

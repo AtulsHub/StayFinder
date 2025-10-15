@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Save, 
   Globe, 
@@ -8,8 +8,10 @@ import {
   CreditCard, 
   Mail,
   Users,
-  Building
+  Building,
+  RefreshCw
 } from 'lucide-react';
+import settingsService from '../../backendConnect/settings';
 
 const Settings = () => {
   const [settings, setSettings] = useState({
@@ -26,6 +28,30 @@ const Settings = () => {
     autoApproveListings: false,
     requireIdVerification: true
   });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await settingsService.getSettings();
+      if (response.settings) {
+        setSettings(response.settings);
+      }
+    } catch (err) {
+      console.error('Failed to fetch settings:', err);
+      setError('Failed to load settings. Using defaults.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSettingChange = (key, value) => {
     setSettings(prev => ({
@@ -34,10 +60,59 @@ const Settings = () => {
     }));
   };
 
-  const handleSave = () => {
-    // Handle save logic here
-    // console.log('Settings saved:', settings);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccessMessage('');
+      
+      await settingsService.updateSettings(settings);
+      
+      setSuccessMessage('Settings saved successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Failed to save settings:', err);
+      setError('Failed to save settings. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
+
+  const handleReset = async () => {
+    if (!window.confirm('Are you sure you want to reset all settings to default values?')) {
+      return;
+    }
+    
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccessMessage('');
+      
+      const response = await settingsService.resetSettings();
+      if (response.settings) {
+        setSettings(response.settings);
+      }
+      
+      setSuccessMessage('Settings reset to default successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Failed to reset settings:', err);
+      setError('Failed to reset settings. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading settings...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -45,12 +120,25 @@ const Settings = () => {
         <h2 className="text-3xl font-bold text-gray-900">Settings</h2>
         <button 
           onClick={handleSave}
-          className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+          disabled={saving}
+          className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="h-4 w-4 mr-2" />
-          Save Changes
+          {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
+
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
+          {successMessage}
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* General Settings */}
@@ -288,14 +376,20 @@ const Settings = () => {
 
       {/* Action Buttons */}
       <div className="flex items-center justify-end gap-4 bg-white rounded-lg shadow-sm border p-6">
-        <button className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+        <button 
+          onClick={handleReset}
+          disabled={saving}
+          className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
           Reset to Default
         </button>
         <button 
           onClick={handleSave}
-          className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+          disabled={saving}
+          className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Save All Changes
+          {saving ? 'Saving...' : 'Save All Changes'}
         </button>
       </div>
     </div>

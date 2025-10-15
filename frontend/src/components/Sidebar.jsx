@@ -144,7 +144,9 @@ const Sidebar = () => {
             )}
             <SidebarLink to="/" icon={<FaHome />} label="Home" />
             <SidebarLink to="/store" icon={<FaBed />} label="Explore Hotels" />
-            <SidebarLink to="#" icon={<FaBook />} label="Bookings" />
+            {selector && (
+              <SidebarLink to="/bookings" icon={<FaBook />} label="My Bookings" />
+            )}
             <SidebarLink to="#" icon={<FaUser />} label="Profile" />
             {selector && (
               <SidebarLink
@@ -158,13 +160,9 @@ const Sidebar = () => {
                 label="Your Business"
               />
             )}
-            {selector && (
+            {selector && hostType?.isAdmin && (
               <SidebarLink
-                to={
-                  hostType?.hostType === "admin" 
-                    ? "/admin"
-                    : ""
-                }
+                to="/admin/dashboard"
                 icon={<FaBusinessTime />}
                 label="Admin Dashboard"
               />

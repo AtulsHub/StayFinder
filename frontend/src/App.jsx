@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Explore from "./pages/Explore";
 import Wishlist from "./pages/Wishlist";
+import UserBookings from "./components/UserBookings";
 import "./tailwind.css";
 import ConnectBusiness from "./components/owner/ConnectBusiness";
 import Loader from "./pages/Loader.jsx";
@@ -42,6 +43,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/store" element={<Explore />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/bookings" element={<UserBookings />} />
           <Route path="/register-business" element={<ConnectBusiness />} />
 
           {/* Admin nested routes (lazy-loaded ✅) */}

@@ -10,14 +10,14 @@ import {
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const AdminSidebar = ({ isCollapsed, onToggleCollapse }) => {
+const AdminSidebar = ({ isCollapsed, onToggleCollapse, user }) => {
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/admin/dashboard' },
     { id: 'listings', label: 'Listings', icon: Home, path: '/admin/listings' },
     { id: 'bookings', label: 'Bookings', icon: Calendar, path: '/admin/bookings' },
     { id: 'users', label: 'Users', icon: Users, path: '/admin/users' },
     { id: 'analytics', label: 'Analytics', icon: BarChart, path: '/admin/analytics' },
-    { id: 'settings', label: 'Settings', icon: Settings, path: '/admin/settings' },
+    // { id: 'settings', label: 'Settings', icon: Settings, path: '/admin/settings' },
   ];
 
   const location = useLocation();
@@ -91,17 +91,25 @@ const AdminSidebar = ({ isCollapsed, onToggleCollapse }) => {
       {/* User Section */}
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}> 
-          <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-medium transition-all duration-300 ease-in-out">
-            A
-          </div>
+          {user?.avatar ? (
+            <img 
+              src={user.avatar} 
+              alt={user.name}
+              className="w-8 h-8 rounded-full object-cover transition-all duration-300 ease-in-out"
+            />
+          ) : (
+            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-medium transition-all duration-300 ease-in-out">
+              {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+            </div>
+          )}
           <span
             className={`flex-1 min-w-0 transition-all duration-300 ease-in-out
               ${isCollapsed ? 'opacity-0 max-w-0 pointer-events-none select-none' : 'opacity-100 max-w-xs'}
             `}
             style={{ display: 'inline-block', overflow: 'hidden', transition: 'all 0.3s' }}
           >
-            <p className="text-sm font-medium text-gray-900 truncate">Admin User</p>
-            <p className="text-xs text-gray-500 truncate">admin@stayfinder.com</p>
+            <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'Admin User'}</p>
+            <p className="text-xs text-gray-500 truncate">{user?.email || 'admin@stayfinder.com'}</p>
           </span>
         </div>
       </div>

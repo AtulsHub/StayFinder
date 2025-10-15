@@ -87,6 +87,60 @@ export class UserService {
   }
 }
 
+  // Get all users (admin)
+  async getAllUsers() {
+    try {
+      const response = await axios.get(`${this.url}/all`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || err.message);
+    }
+  }
+
+  // Update user status (admin)
+  async updateUserStatus(userId, status) {
+    try {
+      const response = await axios.patch(
+        `${this.url}/${userId}/status`,
+        { status },
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || err.message);
+    }
+  }
+
+  // Promote user to admin (admin only)
+  async promoteToAdmin(userId) {
+    try {
+      const response = await axios.patch(
+        `${this.url}/${userId}/promote-admin`,
+        {},
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || err.message);
+    }
+  }
+
+  // Demote admin to regular user (admin only)
+  async demoteFromAdmin(userId) {
+    try {
+      const response = await axios.patch(
+        `${this.url}/${userId}/demote-admin`,
+        {},
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || err.message);
+    }
+  }
+
 }
 
 const userService = new UserService();

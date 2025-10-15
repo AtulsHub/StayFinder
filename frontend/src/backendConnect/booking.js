@@ -85,6 +85,30 @@ export class BookingService {
       throw new Error(err.response?.data?.message || err.message);
     }
   }
+
+  // update booking status (admin)
+  async updateBookingStatus(bookingId, status) {
+    try {
+      const { data } = await axios.patch(`${this.url}/${bookingId}/status`, {
+        status,
+      });
+      return data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || err.message);
+    }
+  }
+
+  // cancel booking (user)
+  async cancelBooking(bookingId) {
+    try {
+      const { data } = await axios.patch(`${this.url}/${bookingId}/cancel`, {}, {
+        withCredentials: true,
+      });
+      return data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || err.message);
+    }
+  }
 }
 
 const bookingService = new BookingService();

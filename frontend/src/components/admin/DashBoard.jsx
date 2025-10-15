@@ -1,61 +1,123 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   Building, 
   Calendar, 
   DollarSign,
+  IndianRupee,
   TrendingUp,
   TrendingDown,
   BarChart2
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import listingService from '../../backendConnect/listing';
+import bookingService from '../../backendConnect/booking';
 
 const Dashboard = () => {
-  const stats = [
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    totalListings: 0,
+    totalBookings: 0,
+    totalUsers: 0,
+  });
+  const [recentBookings, setRecentBookings] = useState([]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      try {
+        // Fetch all listings
+        const listingsRes = await listingService.getAllItems(1, 1000);
+        const listings = listingsRes.listings || [];
+
+        // Fetch all bookings
+        const bookingsRes = await bookingService.getAllBookings();
+        const bookings = Array.isArray(bookingsRes) ? bookingsRes : [];
+        
+        // Filter confirmed bookings
+        const confirmedBookings = bookings.filter(b => b.status === 'CONFIRMED');
+
+        // Calculate total revenue
+        const totalRevenue = confirmedBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+
+        // Get unique users from bookings
+        const uniqueUsers = new Set(confirmedBookings.map(b => b.user?._id || b.user).filter(Boolean));
+
+        setStats({
+          totalRevenue,
+          totalListings: listings.length,
+          totalBookings: confirmedBookings.length,
+          totalUsers: uniqueUsers.size,
+        });
+
+        // Get recent bookings (last 5)
+        const recent = [...confirmedBookings]
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5)
+          .map(booking => ({
+            id: booking._id,
+            guest: booking.user?.name || booking.user?.email || 'Guest',
+            property: booking.listing?.title || 'Property',
+            amount: `₹${booking.totalPrice?.toLocaleString()}`,
+            status: booking.status,
+            checkIn: booking.checkIn,
+          }));
+
+        setRecentBookings(recent);
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const statCards = [
     {
       title: 'Total Revenue',
-      value: '₹2,45,678',
-      change: '+12.5%',
-      trend: 'up',
-      icon: DollarSign,
+      value: `₹${stats.totalRevenue.toLocaleString()}`,
+      icon: IndianRupee,
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
     {
       title: 'Active Listings',
-      value: '156',
-      change: '+8.2%',
-      trend: 'up',
+      value: stats.totalListings.toString(),
       icon: Building,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
     },
     {
       title: 'Total Bookings',
-      value: '1,234',
-      change: '+15.3%',
-      trend: 'up',
+      value: stats.totalBookings.toString(),
       icon: Calendar,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     },
     {
       title: 'Active Users',
-      value: '2,456',
-      change: '-2.1%',
-      trend: 'down',
+      value: stats.totalUsers.toString(),
       icon: Users,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50'
     }
   ];
 
-  const recentBookings = [
-    { id: '1', guest: 'John Doe', property: 'Luxury Villa in Goa', amount: '₹15,000', status: 'Confirmed' },
-    { id: '2', guest: 'Jane Smith', property: 'Beach House Mumbai', amount: '₹12,500', status: 'Pending' },
-    { id: '3', guest: 'Mike Johnson', property: 'Mountain Resort Shimla', amount: '₹8,900', status: 'Confirmed' },
-    { id: '4', guest: 'Sarah Wilson', property: 'City Apartment Delhi', amount: '₹6,700', status: 'Cancelled' },
-  ];
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -68,11 +130,10 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
+        {statCards.map((stat, index) => {
           const Icon = stat.icon;
-          const TrendIcon = stat.trend === 'up' ? TrendingUp : TrendingDown;
           return (
-            <div key={index} className="bg-white rounded-lg shadow-sm border p-6">
+            <div key={index} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">{stat.title}</p>
@@ -81,13 +142,6 @@ const Dashboard = () => {
                 <div className={`p-3 rounded-lg ${stat.bgColor}`}>
                   <Icon className={`h-6 w-6 ${stat.color}`} />
                 </div>
-              </div>
-              <div className="flex items-center mt-4">
-                <TrendIcon className={`h-4 w-4 ${stat.trend === 'up' ? 'text-green-500' : 'text-red-500'}`} />
-                <span className={`text-sm ml-1 ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                  {stat.change}
-                </span>
-                <span className="text-sm text-gray-500 ml-1">vs last month</span>
               </div>
             </div>
           );
@@ -102,26 +156,33 @@ const Dashboard = () => {
             <h3 className="text-lg font-semibold text-gray-900">Recent Bookings</h3>
           </div>
           <div className="p-6">
-            <div className="space-y-4">
-              {recentBookings.map((booking) => (
-                <div key={booking.id} className="flex items-center justify-between py-3 border-b last:border-b-0">
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{booking.guest}</p>
-                    <p className="text-sm text-gray-500">{booking.property}</p>
+            {recentBookings.length > 0 ? (
+              <div className="space-y-4">
+                {recentBookings.map((booking) => (
+                  <div key={booking.id} className="flex items-center justify-between py-3 border-b last:border-b-0">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{booking.guest}</p>
+                      <p className="text-sm text-gray-500">{booking.property}</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Check-in: {new Date(booking.checkIn).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium text-gray-900">{booking.amount}</p>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-800' :
+                        booking.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {booking.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium text-gray-900">{booking.amount}</p>
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
-                      booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {booking.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-gray-500 py-8">No recent bookings</p>
+            )}
           </div>
         </div>
 
@@ -132,17 +193,33 @@ const Dashboard = () => {
           </div>
           <div className="p-6">
             <div className="space-y-3">
-              <button className="w-full flex items-center justify-center px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+              <button 
+                onClick={() => navigate('/admin/listings')}
+                className="w-full flex items-center justify-center px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >
                 <Building className="h-4 w-4 mr-2" />
-                Add New Listing
+                Manage Listings
               </button>
-              <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+              <button 
+                onClick={() => navigate('/admin/users')}
+                className="w-full flex items-center justify-center px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
                 <Users className="h-4 w-4 mr-2" />
                 Manage Users
               </button>
-              <button className="w-full flex items-center justify-center px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+              <button 
+                onClick={() => navigate('/admin/bookings')}
+                className="w-full flex items-center justify-center px-4 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                View Bookings
+              </button>
+              <button 
+                onClick={() => navigate('/admin/analytics')}
+                className="w-full flex items-center justify-center px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              >
                 <BarChart2 className="h-4 w-4 mr-2" />
-                View Reports
+                View Analytics
               </button>
             </div>
           </div>

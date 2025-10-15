@@ -110,6 +110,7 @@ const Navbar = () => {
             Explore
           </Link>
 
+
           <Link to="/wishlist">
             <FaHeart
               className="text-xl text-red-500 cursor-pointer hover:scale-110 transition"
@@ -166,6 +167,15 @@ const Navbar = () => {
                 </div>
                 {selector && (
                   <Link
+                    to="/bookings"
+                  ><label className="block w-full text-center px-4 py-2 border-b text-red-600 hover:bg-red-100 hover:text-red-700 transition">
+                      {" "}
+                      My Bookings
+                    </label>
+                  </Link>
+                )}
+                {selector && (
+                  <Link
                     to={
                       user?.hostType === "admin" || user?.hostType === "owner"
                         ? "/owner"
@@ -178,16 +188,9 @@ const Navbar = () => {
                     </label>
                   </Link>
                 )}
-                {selector && (
-                  <Link
-                    to={
-                      user?.hostType === "admin" || user?.hostType === "owner"
-                        ? "/admin"
-                        : ""
-                    }
-                  >
-                    <label className="block w-full text-center px-4 py-2 border-b text-red-600 hover:bg-red-100 hover:text-red-700 transition">
-                      {" "}
+                {selector && user?.isAdmin && (
+                  <Link to="/admin/dashboard">
+                    <label className="block w-full text-center px-4 py-2 border-b text-red-600 hover:bg-red-100 hover:text-red-700 transition cursor-pointer">
                       Admin Dashboard
                     </label>
                   </Link>

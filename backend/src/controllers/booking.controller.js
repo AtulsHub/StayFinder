@@ -253,3 +253,63 @@ export const deleteBooking = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// 8️⃣ Update booking status (admin)
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["PENDING", "CONFIRMED", "CANCELLED", "FAILED"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    const booking = await Booking.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    ).populate("user listing");
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.status(200).json({ 
+      message: "Booking status updated successfully", 
+      booking 
+    });
+  } catch (error) {
+    console.error("Update Booking Status Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// 9️⃣ Cancel booking (user)
+export const cancelBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await Booking.findById(id).populate("listing");
+    
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    // Check if booking can be cancelled (only PENDING or CONFIRMED bookings)
+    if (!["PENDING", "CONFIRMED"].includes(booking.status)) {
+      return res.status(400).json({ message: "This booking cannot be cancelled" });
+    }
+
+    // Update booking status to CANCELLED
+    booking.status = "CANCELLED";
+    await booking.save();
+
+    res.status(200).json({ 
+      message: "Booking cancelled successfully", 
+      booking 
+    });
+  } catch (error) {
+    console.error("Cancel Booking Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

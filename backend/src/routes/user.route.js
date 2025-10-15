@@ -7,7 +7,11 @@ import {
   registerUser,
   loginUser,
   logoutUser,
-  editUser
+  editUser,
+  getAllUsers,
+  updateUserStatus,
+  promoteToAdmin,
+  demoteFromAdmin
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -16,6 +20,12 @@ router.post("/register", upload.single("avatar"), registerUser);
 router.post("/login", loginUser);
 router.get("/logout", logoutUser);
 router.put("/:id", upload.single("avatar"), editUser);
+
+// Admin routes
+router.get("/all", getAllUsers);
+router.patch("/:id/status", updateUserStatus);
+router.patch("/:id/promote-admin", promoteToAdmin);
+router.patch("/:id/demote-admin", demoteFromAdmin);
 
 
 // router.get(

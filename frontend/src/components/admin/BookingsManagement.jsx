@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Filter, 
@@ -11,75 +11,101 @@ import {
   XCircle,
   Eye
 } from 'lucide-react';
+import bookingService from '../../backendConnect/booking';
 
 const BookingsManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock bookings data
-  const bookings = [
-    {
-      _id: '1',
-      guest: { name: 'John Doe', email: 'john@example.com', phone: '+91 9876543210' },
-      listing: { title: 'Luxury Villa in Goa', location: 'Panaji, Goa' },
-      checkIn: '2024-01-15',
-      checkOut: '2024-01-18',
-      totalAmount: 45000,
-      status: 'confirmed',
-      paymentStatus: 'paid',
-      guests: 4,
-      bookingDate: '2024-01-10'
-    },
-    {
-      _id: '2',
-      guest: { name: 'Jane Smith', email: 'jane@example.com', phone: '+91 9876543211' },
-      listing: { title: 'Beach House Mumbai', location: 'Mumbai, Maharashtra' },
-      checkIn: '2024-01-20',
-      checkOut: '2024-01-22',
-      totalAmount: 25000,
-      status: 'pending',
-      paymentStatus: 'pending',
-      guests: 2,
-      bookingDate: '2024-01-12'
-    },
-    {
-      _id: '3',
-      guest: { name: 'Mike Johnson', email: 'mike@example.com', phone: '+91 9876543212' },
-      listing: { title: 'Mountain Resort Shimla', location: 'Shimla, Himachal Pradesh' },
-      checkIn: '2024-01-25',
-      checkOut: '2024-01-28',
-      totalAmount: 26700,
-      status: 'cancelled',
-      paymentStatus: 'refunded',
-      guests: 3,
-      bookingDate: '2024-01-08'
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await bookingService.getAllBookings();
+      setBookings(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Failed to fetch bookings:', err);
+      setError('Failed to load bookings. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const handleDeleteBooking = async (id) => {
+    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    
+    try {
+      await bookingService.deleteBookingById(id);
+      setBookings(bookings.filter(booking => booking._id !== id));
+      alert('Booking cancelled successfully');
+    } catch (err) {
+      console.error('Failed to cancel booking:', err);
+      alert('Failed to cancel booking. Please try again.');
+    }
+  };
 
   const getStatusIcon = (status) => {
-    switch (status) {
+    const normalizedStatus = status?.toLowerCase();
+    switch (normalizedStatus) {
       case 'confirmed': return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'pending': return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'cancelled': return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'cancelled': 
+      case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
       default: return <Clock className="h-4 w-4 text-gray-500" />;
     }
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
+    const normalizedStatus = status?.toLowerCase();
+    switch (normalizedStatus) {
       case 'confirmed': return 'bg-green-100 text-green-800';
       case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
+      case 'cancelled':
+      case 'failed': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = booking.guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.listing.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || booking.status === filterStatus;
+    const guestName = booking.user?.name || booking.user?.email || '';
+    const listingTitle = booking.listing?.title || '';
+    const matchesSearch = guestName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         listingTitle.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStatus === 'all' || booking.status?.toLowerCase() === filterStatus.toLowerCase();
     return matchesSearch && matchesFilter;
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading bookings...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button 
+          onClick={fetchBookings}
+          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -99,7 +125,7 @@ const BookingsManagement = () => {
             <div>
               <p className="text-sm text-gray-600">Confirmed</p>
               <p className="text-2xl font-bold text-green-600">
-                {bookings.filter(b => b.status === 'confirmed').length}
+                {bookings.filter(b => b.status?.toUpperCase() === 'CONFIRMED').length}
               </p>
             </div>
             <CheckCircle className="h-8 w-8 text-green-500" />
@@ -111,7 +137,7 @@ const BookingsManagement = () => {
             <div>
               <p className="text-sm text-gray-600">Pending</p>
               <p className="text-2xl font-bold text-yellow-600">
-                {bookings.filter(b => b.status === 'pending').length}
+                {bookings.filter(b => b.status?.toUpperCase() === 'PENDING').length}
               </p>
             </div>
             <Clock className="h-8 w-8 text-yellow-500" />
@@ -121,9 +147,9 @@ const BookingsManagement = () => {
         <div className="bg-white rounded-lg shadow-sm border p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Cancelled</p>
+              <p className="text-sm text-gray-600">Cancelled/Failed</p>
               <p className="text-2xl font-bold text-red-600">
-                {bookings.filter(b => b.status === 'cancelled').length}
+                {bookings.filter(b => ['CANCELLED', 'FAILED'].includes(b.status?.toUpperCase())).length}
               </p>
             </div>
             <XCircle className="h-8 w-8 text-red-500" />
@@ -135,7 +161,7 @@ const BookingsManagement = () => {
             <div>
               <p className="text-sm text-gray-600">Revenue</p>
               <p className="text-2xl font-bold text-blue-600">
-                ₹{bookings.filter(b => b.status === 'confirmed').reduce((sum, b) => sum + b.totalAmount, 0).toLocaleString()}
+                ₹{bookings.filter(b => b.status?.toUpperCase() === 'CONFIRMED').reduce((sum, b) => sum + (b.totalPrice || 0), 0).toLocaleString()}
               </p>
             </div>
             <Calendar className="h-8 w-8 text-blue-500" />
@@ -167,9 +193,10 @@ const BookingsManagement = () => {
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="pending">Pending</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="PENDING">Pending</option>
+                <option value="CANCELLED">Cancelled</option>
+                <option value="FAILED">Failed</option>
               </select>
             </div>
           </div>
@@ -207,15 +234,17 @@ const BookingsManagement = () => {
                       <div className="flex items-center">
                         <User className="h-4 w-4 text-gray-400 mr-2" />
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{booking.guest.name}</div>
-                          <div className="text-sm text-gray-500">{booking.guest.email}</div>
+                          <div className="text-sm font-medium text-gray-900">{booking.user?.name || 'Guest'}</div>
+                          <div className="text-sm text-gray-500">{booking.user?.email || 'N/A'}</div>
                         </div>
                       </div>
                       <div className="flex items-center mt-2">
                         <MapPin className="h-4 w-4 text-gray-400 mr-2" />
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{booking.listing.title}</div>
-                          <div className="text-sm text-gray-500">{booking.listing.location}</div>
+                          <div className="text-sm font-medium text-gray-900">{booking.listing?.title || 'Property'}</div>
+                          <div className="text-sm text-gray-500">
+                            {booking.listing?.location?.city || 'N/A'}, {booking.listing?.location?.state || 'N/A'}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -224,15 +253,15 @@ const BookingsManagement = () => {
                     <div className="text-sm text-gray-900">
                       <div>Check-in: {new Date(booking.checkIn).toLocaleDateString()}</div>
                       <div>Check-out: {new Date(booking.checkOut).toLocaleDateString()}</div>
-                      <div className="text-gray-500">{booking.guests} guests</div>
+                      <div className="text-gray-500">{booking.guests || 'N/A'} guests</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      ₹{booking.totalAmount.toLocaleString()}
+                      ₹{(booking.totalPrice || 0).toLocaleString()}
                     </div>
                     <div className="text-sm text-gray-500">
-                      Payment: {booking.paymentStatus}
+                      Payment: {booking.status === 'CONFIRMED' ? 'Paid' : booking.status === 'PENDING' ? 'Pending' : 'Failed'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -245,18 +274,20 @@ const BookingsManagement = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center gap-2">
-                      <button className="text-blue-600 hover:text-blue-900">
+                      <button 
+                        className="text-blue-600 hover:text-blue-900"
+                        title="View Details"
+                      >
                         <Eye className="h-4 w-4" />
                       </button>
-                      {booking.status === 'pending' && (
-                        <>
-                          <button className="text-green-600 hover:text-green-900">
-                            <CheckCircle className="h-4 w-4" />
-                          </button>
-                          <button className="text-red-600 hover:text-red-900">
-                            <XCircle className="h-4 w-4" />
-                          </button>
-                        </>
+                      {booking.status?.toUpperCase() !== 'CONFIRMED' && (
+                        <button 
+                          onClick={() => handleDeleteBooking(booking._id)}
+                          className="text-red-600 hover:text-red-900"
+                          title="Cancel Booking"
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </button>
                       )}
                     </div>
                   </td>

@@ -1,12 +1,13 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, 
   TrendingDown, 
   DollarSign, 
   Users, 
   Building, 
-  Calendar 
+  Calendar,
+  IndianRupee
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -22,53 +23,142 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import listingService from '../../backendConnect/listing';
+import bookingService from '../../backendConnect/booking';
+import userService from '../../backendConnect/user';
 
 const Analytics = () => {
-  // Mock data for charts
-  const revenueData = [
-    { month: 'Jan', revenue: 85000, bookings: 45 },
-    { month: 'Feb', revenue: 92000, bookings: 52 },
-    { month: 'Mar', revenue: 108000, bookings: 63 },
-    { month: 'Apr', revenue: 125000, bookings: 71 },
-    { month: 'May', revenue: 140000, bookings: 84 },
-    { month: 'Jun', revenue: 158000, bookings: 95 }
-  ];
+  const [loading, setLoading] = useState(true);
+  const [analyticsData, setAnalyticsData] = useState({
+    totalRevenue: 0,
+    totalListings: 0,
+    totalUsers: 0,
+    totalBookings: 0,
+    confirmedBookings: 0,
+    pendingBookings: 0,
+    cancelledBookings: 0,
+    topListings: [],
+  });
 
-  const listingPerformance = [
-    { category: 'Luxury Villas', bookings: 35, revenue: 185000 },
-    { category: 'Beach Houses', bookings: 28, revenue: 142000 },
-    { category: 'Mountain Resorts', bookings: 22, revenue: 98000 },
-    { category: 'City Apartments', bookings: 45, revenue: 78000 },
-    { category: 'Cottages', bookings: 18, revenue: 54000 }
+  useEffect(() => {
+    fetchAnalyticsData();
+  }, []);
+
+  const fetchAnalyticsData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch all data in parallel
+      const [listingsRes, bookingsRes, usersRes] = await Promise.all([
+        listingService.getAllItems(1, 1000),
+        bookingService.getAllBookings(),
+        userService.getAllUsers(),
+      ]);
+
+      const listings = listingsRes.listings || [];
+      const bookings = Array.isArray(bookingsRes) ? bookingsRes : [];
+      const users = usersRes.users || [];
+
+      // Calculate metrics
+      const confirmedBookings = bookings.filter(b => b.status === 'CONFIRMED');
+      const totalRevenue = confirmedBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+      
+      // Get top performing listings
+      const listingBookingCounts = {};
+      const listingRevenue = {};
+      
+      confirmedBookings.forEach(booking => {
+        const listingId = booking.listing?._id || booking.listing;
+        if (listingId) {
+          listingBookingCounts[listingId] = (listingBookingCounts[listingId] || 0) + 1;
+          listingRevenue[listingId] = (listingRevenue[listingId] || 0) + (booking.totalPrice || 0);
+        }
+      });
+
+      const topListings = listings
+        .map(listing => ({
+          name: listing.title,
+          bookings: listingBookingCounts[listing._id] || 0,
+          revenue: listingRevenue[listing._id] || 0,
+          occupancy: listingBookingCounts[listing._id] ? Math.min(95, (listingBookingCounts[listing._id] * 10)) : 0,
+        }))
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 5);
+
+      setAnalyticsData({
+        totalRevenue,
+        totalListings: listings.length,
+        totalUsers: users.length,
+        totalBookings: bookings.length,
+        confirmedBookings: confirmedBookings.length,
+        pendingBookings: bookings.filter(b => b.status === 'PENDING').length,
+        cancelledBookings: bookings.filter(b => ['CANCELLED', 'FAILED'].includes(b.status)).length,
+        topListings,
+      });
+    } catch (err) {
+      console.error('Failed to fetch analytics data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Generate mock monthly data (you can enhance this with real date-based calculations)
+  const revenueData = [
+    { month: 'Jan', revenue: Math.floor(analyticsData.totalRevenue * 0.12), bookings: Math.floor(analyticsData.confirmedBookings * 0.12) },
+    { month: 'Feb', revenue: Math.floor(analyticsData.totalRevenue * 0.14), bookings: Math.floor(analyticsData.confirmedBookings * 0.14) },
+    { month: 'Mar', revenue: Math.floor(analyticsData.totalRevenue * 0.15), bookings: Math.floor(analyticsData.confirmedBookings * 0.15) },
+    { month: 'Apr', revenue: Math.floor(analyticsData.totalRevenue * 0.17), bookings: Math.floor(analyticsData.confirmedBookings * 0.17) },
+    { month: 'May', revenue: Math.floor(analyticsData.totalRevenue * 0.19), bookings: Math.floor(analyticsData.confirmedBookings * 0.19) },
+    { month: 'Jun', revenue: Math.floor(analyticsData.totalRevenue * 0.23), bookings: Math.floor(analyticsData.confirmedBookings * 0.23) }
   ];
 
   const userGrowth = [
-    { month: 'Jan', hosts: 45, guests: 158 },
-    { month: 'Feb', hosts: 52, guests: 189 },
-    { month: 'Mar', hosts: 48, guests: 234 },
-    { month: 'Apr', hosts: 63, guests: 267 },
-    { month: 'May', hosts: 71, guests: 312 },
-    { month: 'Jun', hosts: 78, guests: 365 }
+    { month: 'Jan', hosts: Math.floor(analyticsData.totalUsers * 0.10), guests: Math.floor(analyticsData.totalUsers * 0.12) },
+    { month: 'Feb', hosts: Math.floor(analyticsData.totalUsers * 0.13), guests: Math.floor(analyticsData.totalUsers * 0.15) },
+    { month: 'Mar', hosts: Math.floor(analyticsData.totalUsers * 0.15), guests: Math.floor(analyticsData.totalUsers * 0.17) },
+    { month: 'Apr', hosts: Math.floor(analyticsData.totalUsers * 0.17), guests: Math.floor(analyticsData.totalUsers * 0.19) },
+    { month: 'May', hosts: Math.floor(analyticsData.totalUsers * 0.20), guests: Math.floor(analyticsData.totalUsers * 0.22) },
+    { month: 'Jun', hosts: Math.floor(analyticsData.totalUsers * 0.25), guests: Math.floor(analyticsData.totalUsers * 0.25) }
   ];
 
+  // Use top listings for performance chart
+  const listingPerformance = analyticsData.topListings.slice(0, 5).map(listing => ({
+    category: listing.name?.substring(0, 20) || 'N/A',
+    bookings: listing.bookings || 0,
+    revenue: listing.revenue || 0
+  }));
+
+  const totalBookings = analyticsData.totalBookings || 1;
   const bookingStatus = [
-    { name: 'Confirmed', value: 68, color: '#10B981' },
-    { name: 'Pending', value: 22, color: '#F59E0B' },
-    { name: 'Cancelled', value: 10, color: '#EF4444' }
+    { 
+      name: 'Confirmed', 
+      value: Math.round((analyticsData.confirmedBookings / totalBookings) * 100), 
+      color: '#10B981' 
+    },
+    { 
+      name: 'Pending', 
+      value: Math.round((analyticsData.pendingBookings / totalBookings) * 100), 
+      color: '#F59E0B' 
+    },
+    { 
+      name: 'Cancelled', 
+      value: Math.round((analyticsData.cancelledBookings / totalBookings) * 100), 
+      color: '#EF4444' 
+    }
   ];
 
   const kpiData = [
     {
       title: 'Total Revenue',
-      value: '₹7,08,000',
+      value: `₹${analyticsData.totalRevenue.toLocaleString()}`,
       change: '+18.2%',
       trend: 'up',
-      icon: DollarSign,
+      icon: IndianRupee,
       color: 'text-green-600'
     },
     {
       title: 'Active Listings',
-      value: '148',
+      value: analyticsData.totalListings.toString(),
       change: '+12.5%',
       trend: 'up',
       icon: Building,
@@ -76,21 +166,32 @@ const Analytics = () => {
     },
     {
       title: 'Total Users',
-      value: '1,845',
+      value: analyticsData.totalUsers.toLocaleString(),
       change: '+25.8%',
       trend: 'up',
       icon: Users,
       color: 'text-purple-600'
     },
     {
-      title: 'Booking Rate',
-      value: '78.5%',
+      title: 'Total Bookings',
+      value: analyticsData.totalBookings.toString(),
       change: '+5.2%',
       trend: 'up',
       icon: Calendar,
       color: 'text-orange-600'
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -236,21 +337,16 @@ const Analytics = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {[
-                { name: 'Luxury Villa in Goa', bookings: 24, revenue: 360000, occupancy: 85 },
-                { name: 'Beach House Mumbai', bookings: 18, revenue: 225000, occupancy: 72 },
-                { name: 'Mountain Resort Shimla', bookings: 15, revenue: 133500, occupancy: 68 },
-                { name: 'City Apartment Delhi', bookings: 22, revenue: 110000, occupancy: 78 }
-              ].map((listing, index) => (
+              {analyticsData.topListings.map((listing, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {listing.name}
+                    {listing.name || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {listing.bookings}
+                    {listing.bookings || 0}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ₹{listing.revenue.toLocaleString()}
+                    ₹{(listing.revenue || 0).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <div className="flex items-center">
